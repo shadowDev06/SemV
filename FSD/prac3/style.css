@@ -1,0 +1,275 @@
+:root {
+  --primary: #2563eb;
+  --primary-dark: #1d4ed8;
+  --ink: #172033;
+  --muted: #64748b;
+  --border: #dbe3ef;
+  --surface: #ffffff;
+  --background: #f4f7fb;
+  --code: #111827;
+  font-family: "Segoe UI", Arial, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  color: var(--ink);
+  background: var(--background);
+  line-height: 1.6;
+}
+
+.hero {
+  padding: 4rem 1rem;
+  color: #fff;
+  text-align: center;
+  background: linear-gradient(135deg, #1d4ed8, #7c3aed);
+}
+
+.hero h1 {
+  margin: 0.25rem 0 0.75rem;
+  font-size: clamp(2.2rem, 6vw, 4rem);
+  letter-spacing: -0.04em;
+}
+
+.hero p:last-child {
+  margin: 0;
+  opacity: 0.9;
+}
+
+.eyebrow {
+  margin: 0;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.container {
+  width: min(1000px, 92%);
+  margin: 2rem auto;
+}
+
+.card {
+  margin-bottom: 1.5rem;
+  padding: clamp(1.25rem, 3vw, 2rem);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  box-shadow: 0 0.75rem 2rem rgb(23 32 51 / 6%);
+}
+
+.section-heading {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+  margin-bottom: 1.5rem;
+}
+
+.section-heading h2,
+.section-heading p {
+  margin: 0;
+}
+
+.section-heading p {
+  color: var(--muted);
+}
+
+.number {
+  color: var(--primary);
+  font-size: 0.85rem;
+  font-weight: 800;
+}
+
+.demo-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  align-items: end;
+}
+
+label {
+  display: block;
+  margin-bottom: 0.45rem;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.input-row {
+  display: flex;
+  gap: 0.6rem;
+}
+
+input,
+textarea {
+  width: 100%;
+  padding: 0.75rem 0.85rem;
+  color: var(--ink);
+  background: #fcfdff;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  font: inherit;
+}
+
+textarea {
+  display: block;
+  resize: vertical;
+}
+
+input:focus,
+textarea:focus {
+  outline: 3px solid rgb(37 99 235 / 16%);
+  border-color: var(--primary);
+}
+
+button {
+  padding: 0.75rem 1rem;
+  color: #fff;
+  background: var(--primary);
+  border: 0;
+  border-radius: 0.5rem;
+  font: inherit;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+button:hover {
+  background: var(--primary-dark);
+}
+
+.result,
+.highlight {
+  color: var(--primary-dark);
+  font-weight: 700;
+}
+
+.result {
+  min-height: 3rem;
+  padding: 0.8rem 1rem;
+  background: #eff6ff;
+  border-radius: 0.5rem;
+}
+
+pre {
+  margin: 1.5rem 0 0;
+  padding: 1rem;
+  overflow-x: auto;
+  color: #dbeafe;
+  background: var(--code);
+  border-radius: 0.6rem;
+}
+
+code {
+  font-family: Consolas, "Courier New", monospace;
+  font-size: 0.88rem;
+}
+
+.profile {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.profile h3,
+.profile p {
+  margin: 0;
+}
+
+.profile p {
+  color: var(--muted);
+}
+
+.profile .highlight {
+  margin-top: 0.35rem;
+}
+
+.avatar {
+  display: grid;
+  width: 4rem;
+  height: 4rem;
+  flex: 0 0 4rem;
+  place-items: center;
+  color: #fff;
+  background: linear-gradient(135deg, #2563eb, #7c3aed);
+  border-radius: 50%;
+  font-weight: 800;
+}
+
+.tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  min-height: 2.4rem;
+  padding: 0;
+  margin: 1rem 0;
+  list-style: none;
+}
+
+.tag-list li {
+  padding: 0.45rem 0.75rem;
+  color: var(--primary-dark);
+  background: #eff6ff;
+  border-radius: 2rem;
+}
+
+.array-summary {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.string-results {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.string-results div {
+  padding: 0.8rem;
+  background: #f8fafc;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+}
+
+.string-results span,
+.string-results strong {
+  display: block;
+}
+
+.string-results span {
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.string-results strong {
+  margin-top: 0.2rem;
+  overflow-wrap: anywhere;
+}
+
+footer {
+  padding: 1.5rem;
+  color: #fff;
+  text-align: center;
+  background: var(--ink);
+}
+
+footer p {
+  margin: 0;
+}
+
+@media (max-width: 650px) {
+  .demo-grid,
+  .string-results {
+    grid-template-columns: 1fr;
+  }
+
+  .input-row {
+    flex-direction: column;
+  }
+}

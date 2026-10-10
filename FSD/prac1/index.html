@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="A demonstration page covering common HTML elements.">
+    <title>HTML Elements Showcase</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --dark: #172033;
+            --light: #f4f7fb;
+            --border: #d9e1ec;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            color: var(--dark);
+            background: var(--light);
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+        }
+
+        header {
+            padding: 3rem 1rem;
+            color: white;
+            text-align: center;
+            background: linear-gradient(135deg, #1d4ed8, #7c3aed);
+        }
+
+        header h1 {
+            margin: 0 0 0.5rem;
+            font-size: clamp(2rem, 5vw, 3.5rem);
+        }
+
+        nav {
+            padding: 1rem;
+            text-align: center;
+            background: white;
+            border-bottom: 1px solid var(--border);
+        }
+
+        nav a {
+            margin: 0 0.75rem;
+            color: var(--primary);
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+        nav a:hover,
+        nav a:focus {
+            text-decoration: underline;
+        }
+
+        main {
+            width: min(1100px, 92%);
+            margin: 2rem auto;
+        }
+
+        section {
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            box-shadow: 0 4px 14px rgb(23 32 51 / 6%);
+        }
+
+        h2 {
+            margin-top: 0;
+            color: var(--primary);
+        }
+
+        .image-card {
+            max-width: 700px;
+            margin: auto;
+            text-align: center;
+        }
+
+        img {
+            width: 100%;
+            height: auto;
+            border-radius: 10px;
+        }
+
+        .columns {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            padding: 0.75rem;
+            text-align: left;
+            border: 1px solid var(--border);
+        }
+
+        th {
+            color: white;
+            background: var(--primary);
+        }
+
+        tr:nth-child(even) {
+            background: #f8fafc;
+        }
+
+        video,
+        audio {
+            width: 100%;
+            margin-top: 0.5rem;
+        }
+
+        footer {
+            padding: 1.5rem;
+            color: white;
+            text-align: center;
+            background: var(--dark);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>HTML Elements Showcase</h1>
+        <p>A single page demonstrating essential HTML features.</p>
+    </header>
+
+    <nav aria-label="Main navigation">
+        <a href="#formatting">Formatting</a>
+        <a href="#images">Images</a>
+        <a href="#tables">Tables</a>
+        <a href="#lists">Lists</a>
+        <a href="#multimedia">Multimedia</a>
+        <a href="https://developer.mozilla.org/en-US/docs/Web/HTML" target="_blank" rel="noopener">
+            Learn HTML
+        </a>
+    </nav>
+
+    <main>
+        <section id="formatting">
+            <h2>Formatting Tags</h2>
+            <p>
+                HTML can make text <strong>strong</strong>, <em>emphasized</em>,
+                <mark>highlighted</mark>, and <u>underlined</u>.
+            </p>
+            <p>
+                You can also show <b>bold text</b>, <i>italic text</i>,
+                <small>small text</small>, H<sub>2</sub>O, and x<sup>2</sup>.
+            </p>
+            <p>
+                <del>Old content</del> can be replaced with <ins>new content</ins>.
+                A short quotation is <q>Learning never stops.</q>
+            </p>
+            <blockquote cite="https://www.w3.org/">
+                The web is built on open standards that allow people and devices to
+                communicate across the world.
+            </blockquote>
+            <p>Example computer code: <code>&lt;h1&gt;Hello World&lt;/h1&gt;</code></p>
+        </section>
+
+        <section id="images">
+            <h2>Images</h2>
+            <figure class="image-card">
+                <img
+                    src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1200&q=80"
+                    alt="Laptop displaying colorful code on its screen"
+                >
+                <figcaption>
+                    A developer working with web technologies.
+                </figcaption>
+            </figure>
+        </section>
+
+        <section id="tables">
+            <h2>HTML Elements Table</h2>
+            <table>
+                <caption>Common HTML elements and their purposes</caption>
+                <thead>
+                    <tr>
+                        <th>Element</th>
+                        <th>Purpose</th>
+                        <th>Example</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>&lt;h1&gt;</td>
+                        <td>Creates a main heading</td>
+                        <td>Page title</td>
+                    </tr>
+                    <tr>
+                        <td>&lt;a&gt;</td>
+                        <td>Creates a hyperlink</td>
+                        <td>Visit a website</td>
+                    </tr>
+                    <tr>
+                        <td>&lt;img&gt;</td>
+                        <td>Embeds an image</td>
+                        <td>Photo or illustration</td>
+                    </tr>
+                    <tr>
+                        <td>&lt;table&gt;</td>
+                        <td>Displays data in rows and columns</td>
+                        <td>Product details</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section id="lists">
+            <h2>Lists</h2>
+            <div class="columns">
+                <div>
+                    <h3>Unordered List</h3>
+                    <ul>
+                        <li>HTML structure</li>
+                        <li>CSS styling</li>
+                        <li>JavaScript behavior</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3>Ordered List</h3>
+                    <ol>
+                        <li>Plan the page</li>
+                        <li>Write the markup</li>
+                        <li>Test in a browser</li>
+                    </ol>
+                </div>
+                <div>
+                    <h3>Description List</h3>
+                    <dl>
+                        <dt><strong>HTML</strong></dt>
+                        <dd>The structure of a web page.</dd>
+                        <dt><strong>CSS</strong></dt>
+                        <dd>The presentation and layout of a web page.</dd>
+                    </dl>
+                </div>
+            </div>
+        </section>
+
+        <section id="multimedia">
+            <h2>Multimedia</h2>
+            <h3>Video</h3>
+            <video controls poster="https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=1200&q=80">
+                <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">
+                Your browser does not support the video element.
+            </video>
+
+            <h3>Audio</h3>
+            <audio controls>
+                <source src="https://www.w3schools.com/html/horse.ogg" type="audio/ogg">
+                <source src="https://www.w3schools.com/html/horse.mp3" type="audio/mpeg">
+                Your browser does not support the audio element.
+            </audio>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 HTML Elements Showcase</p>
+    </footer>
+</body>
+</html>
