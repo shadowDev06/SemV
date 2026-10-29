@@ -1,0 +1,17 @@
+{
+  "name": "mongoose-collections",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Practical 11: Create and manage MongoDB collections using Mongoose ODM",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "seed": "node seed.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "mongoose": "^8.9.5"
+  }
+}

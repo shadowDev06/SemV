@@ -1,0 +1,32 @@
+{
+  "permissions": {
+    "allow": [
+      "Shell(node --version)",
+      "Shell(npm:*)",
+      "Shell(Get-ChildItem -Recurse -Filter *.js -Exclude *.min.js | Where-Object { $_.FullName -notmatch 'node_modules' } | ForEach-Object { node --check $_.FullName; if ($?) { Write-Output \"OK $($_.FullName)\" } })",
+      "powershell",
+      "Shell(mongod:*)",
+      "Shell(node server.js)",
+      "Shell(node \"C:\\Users\\MOHAMM~1\\AppData\\Local\\Temp\\commandcode\\C--Mohd-Ali-Ves-semV-FSD\\de83fe16-3e39-438c-af19-6a839a68e501\\scratchpad\\test-api.js\")",
+      "Shell(agent-browser:*)",
+      "Shell(node C:\\Users\\MOHAMM~1\\AppData\\Local\\Temp\\commandcode\\C--Mohd-Ali-Ves-semV-FSD\\de83fe16-3e39-438c-af19-6a839a68e501\\scratchpad\\test-api.js)",
+      "Shell(node -e fetch('http://127.0.0.1:3000/api/students',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:'Bad Number',email:'bad.number@example.com',course:'000000000000000000000000',marks:'abc'})}).then(async r=>{console.log(r.status, await r.text())}))",
+      "Shell(node -e \"fetch('http://127.0.0.1:3000/api/students',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:'Bad Number',email:'bad.number@example.com',course:'000000000000000000000000',marks:'abc'})}).then(async r=>{console.log('status',r.status);console.log(await r.text())})\")",
+      "Shell(node -e \"const base='http://127.0.0.1:3000'; (async()=>{const c=await (await fetch(base+'/api/courses')).json(); const id=c.data[0]._id; const r=await fetch(base+'/api/students',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:'Bad Number',email:'bad.number.'+Date.now()+'@example.com',course:id,marks:'abc'})}); console.log('status',r.status); console.log(await r.text());})()\")",
+      "Shell(node --check config/database.js)",
+      "Shell(node --check middleware/errorHandler.js)",
+      "Shell(node --check controllers/courseController.js)",
+      "Shell(Write-Output:*)",
+      "Shell(Test-Path:*)",
+      "Shell(if:*)",
+      "Shell({:*)",
+      "Shell(else:*)",
+      "Shell(node \"C:\\Users\\MOHAMM~1\\AppData\\Local\\Temp\\commandcode\\C--Mohd-Ali-Ves-semV-FSD\\de83fe16-3e39-438c-af19-6a839a68e501\\scratchpad\\test-preview.js\")",
+      "Shell(netstat:*)",
+      "Shell(findstr:*)",
+      "Shell(C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe:*)"
+    ],
+    "deny": [],
+    "defaultMode": "default"
+  }
+}

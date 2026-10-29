@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Student CRUD | Sequelize + PostgreSQL</title>
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <header>
+    <h1>Student CRUD</h1>
+    <nav>
+      <a href="/">Home</a>
+      <a href="/api/students">JSON API</a>
+      <a href="/api/health">Health</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="card">
+      <h2>Students</h2>
+      <div class="toolbar">
+        <input
+          id="search"
+          type="search"
+          placeholder="Search by name, email or course"
+          aria-label="Search students"
+        />
+        <button id="refresh" type="button">Refresh</button>
+      </div>
+
+      <p id="message" role="status" hidden></p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Course</th>
+            <th>Marks</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="student-rows"></tbody>
+      </table>
+
+      <p id="empty" class="empty" hidden>No students found. Add one using the form below.</p>
+    </section>
+
+    <section class="card">
+      <h2 id="form-title">Add a student</h2>
+      <form id="student-form">
+        <label for="name">Name</label>
+        <input id="name" name="name" required minlength="2" maxlength="60" />
+
+        <label for="email">Email</label>
+        <input id="email" name="email" type="email" required maxlength="120" />
+
+        <label for="course">Course</label>
+        <input id="course" name="course" required maxlength="60" />
+
+        <label for="marks">Marks</label>
+        <input id="marks" name="marks" type="number" min="0" max="100" required />
+
+        <div class="actions">
+          <button id="submit-button" type="submit">Add student</button>
+          <button id="cancel-button" type="button" class="secondary" hidden>Cancel</button>
+        </div>
+      </form>
+    </section>
+  </main>
+
+  <footer>Practical 10 &mdash; CRUD with Sequelize ORM and PostgreSQL</footer>
+
+  <script src="/app.js"></script>
+</body>
+</html>

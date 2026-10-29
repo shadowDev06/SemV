@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="JavaScript events, classes, error handling, and form validation demonstration.">
+  <title>JavaScript Form Validation</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <main class="page">
+    <section class="form-card" aria-labelledby="form-title">
+      <header class="form-header">
+        <p class="eyebrow">FSD Practical 4</p>
+        <h1 id="form-title">Student Registration</h1>
+        <p>Validate your details with JavaScript before submitting the form.</p>
+      </header>
+
+      <div id="form-message" class="form-message" role="status" aria-live="polite"></div>
+
+      <form id="registration-form" novalidate>
+        <div class="form-grid">
+          <div class="field">
+            <label for="full-name">Full name <span aria-hidden="true">*</span></label>
+            <input type="text" id="full-name" name="fullName" placeholder="Enter your full name"
+              autocomplete="name" aria-describedby="full-name-error">
+            <small id="full-name-error" class="error-message"></small>
+          </div>
+
+          <div class="field">
+            <label for="email">Email address <span aria-hidden="true">*</span></label>
+            <input type="email" id="email" name="email" placeholder="you@example.com"
+              autocomplete="email" aria-describedby="email-error">
+            <small id="email-error" class="error-message"></small>
+          </div>
+
+          <div class="field">
+            <label for="phone">Phone number <span aria-hidden="true">*</span></label>
+            <input type="tel" id="phone" name="phone" placeholder="10-digit phone number"
+              inputmode="numeric" autocomplete="tel" aria-describedby="phone-error">
+            <small id="phone-error" class="error-message"></small>
+          </div>
+
+          <div class="field">
+            <label for="course">Select a course <span aria-hidden="true">*</span></label>
+            <select id="course" name="course" aria-describedby="course-error">
+              <option value="">Choose a course</option>
+              <option value="web-development">Web Development</option>
+              <option value="data-science">Data Science</option>
+              <option value="cyber-security">Cyber Security</option>
+            </select>
+            <small id="course-error" class="error-message"></small>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="message">Why do you want to join? <span aria-hidden="true">*</span></label>
+          <textarea id="message" name="message" rows="4" maxlength="250"
+            placeholder="Write at least 20 characters..." aria-describedby="message-help message-error"></textarea>
+          <div class="field-meta">
+            <small id="message-help">Minimum 20 characters</small>
+            <small id="character-count">0/250</small>
+          </div>
+          <small id="message-error" class="error-message"></small>
+        </div>
+
+        <label class="terms">
+          <input type="checkbox" id="terms" name="terms" aria-describedby="terms-error">
+          <span>I agree to the terms and conditions. <span aria-hidden="true">*</span></span>
+        </label>
+        <small id="terms-error" class="error-message"></small>
+
+        <div class="button-row">
+          <button type="reset" class="secondary-button">Clear</button>
+          <button type="submit">Submit registration</button>
+        </div>
+      </form>
+
+      <details class="concepts">
+        <summary>JavaScript concepts demonstrated</summary>
+        <ul>
+          <li><strong>Events:</strong> input, change, blur, submit, and reset listeners.</li>
+          <li><strong>Class:</strong> <code>FormValidator</code> stores validation behavior.</li>
+          <li><strong>Error handling:</strong> validation errors use <code>try...catch</code> and a custom error class.</li>
+        </ul>
+      </details>
+    </section>
+  </main>
+</body>
+</html>

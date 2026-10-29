@@ -1,0 +1,19 @@
+{
+  "name": "sequelize-crud",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Practical 10: CRUD operations on a PostgreSQL database using the Sequelize ORM",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "seed": "node seed.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "pg": "^8.13.1",
+    "pg-hstore": "^2.3.4",
+    "sequelize": "^6.37.5"
+  }
+}

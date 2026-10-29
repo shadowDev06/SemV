@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mongoose Collections | MongoDB CRUD</title>
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <header>
+    <h1>Mongoose Collections</h1>
+    <nav>
+      <a href="/">Home</a>
+      <a href="/api/students">Students API</a>
+      <a href="/api/courses">Courses API</a>
+      <a href="/api/collections">Collections API</a>
+      <a href="/api/health">Health</a>
+    </nav>
+  </header>
+
+  <main>
+    <p id="message" role="status" hidden></p>
+
+    <section class="card">
+      <div class="card-head">
+        <h2>MongoDB collections</h2>
+        <button id="refresh-collections" class="secondary small" type="button">Refresh</button>
+      </div>
+      <p class="muted">
+        Database: <code id="collections-database">&mdash;</code>
+      </p>
+      <div id="collection-stats" class="stats"></div>
+    </section>
+
+    <section class="card">
+      <h2>Courses</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Code</th>
+            <th>Name</th>
+            <th>Credits</th>
+            <th>Students</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="course-rows"></tbody>
+      </table>
+      <p id="courses-empty" class="empty" hidden>No courses yet. Add one using the form below.</p>
+
+      <h3>Add a course</h3>
+      <form id="course-form" class="inline-form">
+        <div>
+          <label for="course-code">Code</label>
+          <input
+            id="course-code"
+            name="code"
+            required
+            minlength="2"
+            maxlength="10"
+            placeholder="CS301"
+          />
+        </div>
+
+        <div>
+          <label for="course-name">Name</label>
+          <input
+            id="course-name"
+            name="name"
+            required
+            minlength="2"
+            maxlength="80"
+            placeholder="Data Structures"
+          />
+        </div>
+
+        <div>
+          <label for="course-credits">Credits</label>
+          <input
+            id="course-credits"
+            name="credits"
+            type="number"
+            min="1"
+            max="6"
+            step="1"
+            required
+            value="4"
+          />
+        </div>
+
+        <button type="submit">Add course</button>
+      </form>
+    </section>
+
+    <section class="card">
+      <h2>Students</h2>
+      <div class="toolbar">
+        <input
+          id="search"
+          type="search"
+          placeholder="Search by name or email"
+          aria-label="Search students"
+        />
+        <button id="refresh" type="button">Refresh</button>
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Course</th>
+            <th>Marks</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="student-rows"></tbody>
+      </table>
+
+      <p id="students-empty" class="empty" hidden>
+        No students found. Add one using the form below.
+      </p>
+
+      <h3 id="form-title">Add a student</h3>
+      <form id="student-form">
+        <label for="name">Name</label>
+        <input id="name" name="name" required minlength="2" maxlength="60" />
+
+        <label for="email">Email</label>
+        <input id="email" name="email" type="email" required maxlength="120" />
+
+        <label for="course">Course</label>
+        <select id="course" name="course" required></select>
+
+        <label for="marks">Marks</label>
+        <input id="marks" name="marks" type="number" min="0" max="100" step="1" required />
+
+        <div class="actions">
+          <button id="submit-button" type="submit">Add student</button>
+          <button id="cancel-button" type="button" class="secondary" hidden>Cancel</button>
+        </div>
+      </form>
+    </section>
+  </main>
+
+  <footer>Practical 11 &mdash; MongoDB collections with Mongoose ODM</footer>
+
+  <script src="/app.js"></script>
+</body>
+</html>

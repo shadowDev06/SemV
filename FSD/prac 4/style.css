@@ -1,0 +1,245 @@
+:root {
+  --primary: #635bff;
+  --primary-dark: #5048d8;
+  --ink: #20243a;
+  --muted: #6d7287;
+  --border: #dfe2ee;
+  --surface: #ffffff;
+  --background: #f5f7ff;
+  --danger: #c93645;
+  --success: #177245;
+  font-family: "Segoe UI", Arial, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  color: var(--ink);
+  background:
+    radial-gradient(circle at top left, #e1e4ff 0, transparent 34rem),
+    var(--background);
+}
+
+.page {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 2rem 1rem;
+}
+
+.form-card {
+  width: min(100%, 780px);
+  padding: clamp(1.5rem, 4vw, 3rem);
+  background: var(--surface);
+  border: 1px solid rgb(99 91 255 / 12%);
+  border-radius: 1.25rem;
+  box-shadow: 0 1.5rem 4rem rgb(48 54 100 / 14%);
+}
+
+.form-header {
+  margin-bottom: 1.5rem;
+}
+
+.eyebrow {
+  margin: 0 0 0.5rem;
+  color: var(--primary);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+h1 {
+  margin: 0;
+  font-size: clamp(2rem, 5vw, 3rem);
+  letter-spacing: -0.04em;
+}
+
+.form-header > p:last-child {
+  margin: 0.75rem 0 0;
+  color: var(--muted);
+}
+
+.form-message {
+  min-height: 0;
+  margin-bottom: 1rem;
+  padding: 0;
+  border-radius: 0.6rem;
+  font-weight: 600;
+}
+
+.form-message.success,
+.form-message.error {
+  padding: 0.8rem 1rem;
+}
+
+.form-message.success {
+  color: var(--success);
+  background: #eaf8f0;
+}
+
+.form-message.error {
+  color: var(--danger);
+  background: #fff0f1;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.25rem;
+}
+
+.field {
+  margin-bottom: 1.25rem;
+}
+
+.field label,
+.terms {
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.field label {
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+label > span > span,
+.field label > span {
+  color: var(--danger);
+}
+
+input,
+select,
+textarea {
+  width: 100%;
+  padding: 0.8rem 0.9rem;
+  border: 1px solid var(--border);
+  border-radius: 0.6rem;
+  color: var(--ink);
+  background: #fcfcff;
+  font: inherit;
+  transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+
+textarea {
+  display: block;
+  resize: vertical;
+}
+
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 0;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px rgb(99 91 255 / 14%);
+}
+
+.invalid {
+  border-color: var(--danger);
+}
+
+.valid {
+  border-color: var(--success);
+}
+
+.error-message {
+  display: block;
+  min-height: 1.2rem;
+  margin-top: 0.35rem;
+  color: var(--danger);
+  font-size: 0.8rem;
+}
+
+.field-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 0.35rem;
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.terms {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+}
+
+input[type="checkbox"] {
+  width: auto;
+  accent-color: var(--primary);
+}
+
+.button-row {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+button {
+  flex: 1;
+  padding: 0.9rem 1.25rem;
+  border: 0;
+  border-radius: 0.6rem;
+  color: #fff;
+  background: var(--primary);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 160ms ease, transform 160ms ease;
+}
+
+button:hover {
+  background: var(--primary-dark);
+  transform: translateY(-2px);
+}
+
+.secondary-button {
+  color: var(--primary-dark);
+  background: #eeedff;
+}
+
+.secondary-button:hover {
+  background: #dedcff;
+}
+
+.concepts {
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.concepts summary {
+  color: var(--primary-dark);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.concepts li {
+  margin-top: 0.5rem;
+}
+
+code {
+  padding: 0.1rem 0.3rem;
+  color: var(--primary-dark);
+  background: #eeedff;
+  border-radius: 0.25rem;
+}
+
+@media (max-width: 620px) {
+  .form-grid {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .button-row {
+    flex-direction: column-reverse;
+  }
+}
