@@ -1,0 +1,183 @@
+\documentclass[12pt,a4paper,oneside]{report}
+
+% =========================================================
+% VESIT MAJOR PROJECT REPORT TEMPLATE
+% Academic Year: 2026--2027
+%
+% IMPORTANT:
+% 1. Replace the logo files in figures/ when available.
+% 2. Edit project_details.tex for student/project details.
+% 3. Write the report chapter-wise inside chapters/.
+% =========================================================
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage{multirow}
+\usepackage{float}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{setspace}
+\usepackage{geometry}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{url}
+\usepackage[hidelinks]{hyperref}
+\usepackage{cite}
+\usepackage{listings}
+\usepackage{tikz}
+\usepackage{etoolbox}
+\usepackage{pdflscape}
+
+% ---------------------------------------------------------
+% Page setup
+% ---------------------------------------------------------
+\geometry{
+    a4paper,
+    left=1.5in,
+    right=1in,
+    top=1in,
+    bottom=1in
+}
+
+\onehalfspacing
+\setlength{\parindent}{0.5in}
+\setlength{\parskip}{0pt}
+\setlength{\emergencystretch}{3em}
+
+% ---------------------------------------------------------
+% Project details and logo configuration
+% ---------------------------------------------------------
+\input{project_details}
+
+% =========================================================
+% HEADER AND FOOTER
+% =========================================================
+
+\pagestyle{fancy}
+\fancyhf{}
+
+% Header
+\fancyhead[L]{\small\bfseries \leftheader}
+\fancyhead[R]{\small\bfseries Mini Project \nouppercase{\leftmark}}
+
+% Header line
+\renewcommand{\headrulewidth}{0.4pt}
+
+% Footer
+\fancyfoot[C]{\thepage}
+
+% Footer line
+\renewcommand{\footrulewidth}{0pt}
+
+% Header/footer spacing
+\setlength{\headheight}{15pt}
+% Make chapter-opening pages use the same header/footer
+\fancypagestyle{plain}{
+    \fancyhf{}
+    \fancyhead[L]{\small\bfseries \leftheader}
+    \fancyhead[R]{\small\bfseries Mini Project \nouppercase{\leftmark}}
+    \fancyfoot[C]{\thepage}
+    \renewcommand{\headrulewidth}{0.4pt}
+    \renewcommand{\footrulewidth}{0pt}
+}
+
+% ---------------------------------------------------------
+% Chapter formatting
+% ---------------------------------------------------------
+\titleformat{\chapter}[display]
+  {\normalfont\bfseries\centering}
+  {\chaptername\ \thechapter}
+  {10pt}
+  {\Large}
+
+\titlespacing*{\chapter}{0pt}{-10pt}{25pt}
+
+% ---------------------------------------------------------
+% Captions
+% ---------------------------------------------------------
+\captionsetup{
+    font=small,
+    labelfont=bf,
+    justification=centering
+}
+
+% ---------------------------------------------------------
+% Code listing style
+% ---------------------------------------------------------
+\lstset{
+    basicstyle=\ttfamily\small,
+    breaklines=true,
+    frame=single,
+    numbers=left,
+    numberstyle=\tiny,
+    showstringspaces=false
+}
+
+% ---------------------------------------------------------
+% Helper command for optional images
+% ---------------------------------------------------------
+\newcommand{\insertlogo}[2][3cm]{%
+    \IfFileExists{#2}{%
+        \includegraphics[width=#1]{#2}%
+    }{%
+        \fbox{\parbox[c][2cm][c]{3cm}{\centering Logo\\Placeholder}}%
+    }%
+}
+
+\begin{document}
+
+% =========================================================
+% FRONT MATTER
+% =========================================================
+\pagenumbering{roman}
+
+\input{frontmatter/titlepage}
+\input{frontmatter/certificate}
+\input{frontmatter/declaration}
+\input{frontmatter/acknowledgement}
+\input{frontmatter/abstract}
+
+\tableofcontents
+\listoffigures
+\listoftables
+
+% Uncomment if a list of abbreviations is required.
+% \input{frontmatter/abbreviations}
+
+% =========================================================
+% MAIN CONTENT
+% =========================================================
+\clearpage
+\pagenumbering{arabic}
+
+\input{chapters/chapter1_introduction}
+\input{chapters/chapter2_literature_review}
+\input{chapters/chapter3_proposed_methodology}
+\input{chapters/chapter4_system_design}
+\input{chapters/chapter5_implementation}
+\input{chapters/chapter6_results_discussion}
+\input{chapters/chapter7_conclusion}
+
+% =========================================================
+% REFERENCES
+% =========================================================
+\clearpage
+\addcontentsline{toc}{chapter}{References}
+\bibliographystyle{IEEEtran}
+\bibliography{references}
+
+% =========================================================
+% APPENDIX
+% =========================================================
+\clearpage
+\appendix
+\input{appendix/appendix}
+\input{logbook}
+\end{document}

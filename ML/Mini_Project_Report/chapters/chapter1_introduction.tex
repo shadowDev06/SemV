@@ -1,0 +1,114 @@
+\chapter{Introduction}
+
+\section{Background}
+
+Machine learning models are only as reliable as the data used to train them. In controlled benchmarks, training data is assumed to be clean, correctly labelled, and complete. In practice, data is collected from sensors, surveys, hospital records, web sources, and human annotators, and it frequently contains mislabelled samples, noisy measurements, missing entries, and extreme observations. A model that performs well on a curated dataset can therefore degrade sharply when it is deployed on data that contains the same imperfections.
+
+The problem of learning from imperfect data has been studied for several decades. Surveys on label noise describe how incorrect labels arise, how they affect conventional classifiers, and which families of methods have been proposed to make training more robust \cite{frenay2014classification,song2023survey}. A central observation is that sufficiently flexible models can memorise corrupted labels and still fit the training set, which harms generalisation on unseen data \cite{zhang2021rethinking}. Deep neural networks are particularly susceptible to this effect, although the severity depends on the architecture, the amount of data, and the noise rate \cite{rolnick2017robust}. Robust loss functions, sample selection, loss correction, regularisation, and specialised architectures have all been proposed to reduce the damage caused by label noise \cite{natarajan2013learning,song2023survey}.
+
+Feature-space corruption is a separate but related problem. Gaussian feature noise, outliers, and missing values alter the input distribution rather than the labels. Robust statistics provides classical tools for limiting the influence of outliers \cite{huber1964robust}, while missing-value imputation and feature scaling are standard preprocessing steps. Recent work has also shown that feature noise and label noise interact: adding Gaussian noise to features can, under some conditions, tighten a generalisation bound and improve robustness to label noise in deep networks \cite{zeng2025feature}. Hybrid and compound noise settings, in which several corruption types occur together, have been studied in multilabel learning \cite{zhang2020hybrid} and in semisupervised deep generative models \cite{chen2023compound}.
+
+Despite this body of work, two gaps remain. First, most studies focus on a single corruption type, or on a small number of selected combinations, and they usually report performance at one or two noise rates. Second, the dominant experimental setting is deep learning on image or graph data, whereas many practical tabular problems in medicine, finance, and public administration are still solved with classical models such as logistic regression, support vector machines, decision trees, and random forests. Practitioners therefore lack a systematic, reproducible description of how classical models fail as several corruption types accumulate.
+
+The title of this project, \emph{Death by a Thousand Cuts}, captures the intuition behind the study. A single small corruption may be harmless, but many small corruptions applied together can push a model past a critical point. The project asks where that critical point lies, how it depends on the model, the dataset, and the corruption type, and whether the combined effect is larger or smaller than the sum of the individual effects.
+
+\section{Problem Statement}
+
+Given two clean tabular datasets and four fixed classical classifiers, the project studies how model performance changes when training data is corrupted by individual and compound noise. Four noise types are considered: label noise, Gaussian feature noise, outliers, and missing values. Every non-empty subset of these four types is evaluated, giving fifteen noise combinations, and each combination is applied at five increasing severity levels. The test set is always clean and is never used for fitting or noise estimation.
+
+Formally, let $D = \{(x_i, y_i)\}_{i=1}^{n}$ be a dataset, let $M$ be a classifier, and let $C \subseteq \{\text{label}, \text{Gaussian}, \text{outliers}, \text{missing}\}$ be a non-empty noise combination with $|C| \geq 1$. For a severity level $L \in \{1,\ldots,5\}$, let $D^{\text{train}}_{C,L}$ be the corrupted training split and let $D^{\text{test}}$ be the untouched clean test split. The experiment fits $M$ on $D^{\text{train}}_{C,L}$ and evaluates Macro F1 and Accuracy on $D^{\text{test}}$. The clean baseline $B_{M}$ is the mean Macro F1 of $M$ on $D^{\text{test}}$ when trained on the clean training split.
+
+The breaking point of model $M$ for combination $C$ is the first level $L^{*} \in \{1,\ldots,5\}$ for which
+\begin{equation}
+  \overline{\text{F1}}_{M,C}(L^{*}) \;\leq\; 0.90 \times B_{M},
+  \label{eq:breaking}
+\end{equation}
+where $\overline{\text{F1}}_{M,C}(L)$ is the mean Macro F1 over the official seeds. If no level satisfies the condition, the breaking point is reported as \emph{not reached}.
+
+The project addresses the following research question and sub-questions:
+
+\begin{itemize}
+  \item \textbf{RQ.} How do individual and compound noise affect machine learning model robustness, and where does each model reach its breaking point?
+  \item \textbf{Q1.} Which model is most robust overall?
+  \item \textbf{Q2.} Which noise type causes the largest degradation?
+  \item \textbf{Q3.} What is the breaking point of each model for each noise type and combination?
+  \item \textbf{Q4.} Is compound noise worse than the sum of its single-noise components?
+  \item \textbf{Q5.} Do the results differ between binary (Breast Cancer) and multiclass (Digits) data?
+\end{itemize}
+
+\section{Motivation}
+
+Data quality is one of the most important determinants of model reliability. When a model fails in a medical, financial, or operational setting, the cause is often a change in the input distribution, a corrupted label, or a missing value rather than a deficiency of the learning algorithm. Understanding which corruption type is most damaging, and how much of it a model can tolerate, helps practitioners prioritise data-cleaning effort and choose models that are appropriate for noisy environments.
+
+The existing literature provides strong evidence that label noise harms generalisation and that many mitigation methods can help \cite{song2023survey}. It also shows that feature noise can interact with label noise in non-obvious ways \cite{zeng2025feature}, and that compound noise is a recognised challenge in multilabel and semisupervised settings \cite{zhang2020hybrid,chen2023compound}. However, these studies do not provide a common protocol that sweeps all combinations of noise types over several severity levels, and they rarely report the point at which a classical model becomes unusable.
+
+A second motivation is reproducibility. Robustness claims are difficult to compare when datasets, splits, noise models, model hyperparameters, and evaluation metrics differ across papers. This project addresses that problem by fixing the methodology before the main experiment, recording a configuration hash, freezing the severity table, storing per-fit provenance, and locking the final result artefacts with checksums. The resulting benchmark is small enough to run on a standard workstation but detailed enough to support quantitative analysis.
+
+Finally, the project is motivated by the needs of teaching and applied research. A transparent, reproducible benchmark of classical models on tabular data is useful for students and practitioners who want to understand robustness without the computational cost and opacity of large deep networks.
+
+\section{Objectives}
+
+The objectives of the proposed project are:
+
+\begin{enumerate}
+  \item To design and implement a reproducible experiment engine that loads the two approved datasets, creates stratified training and test splits, injects four types of noise with deterministic random-number generation, and evaluates four fixed classical classifiers.
+  \item To evaluate all fifteen non-empty combinations of label noise, Gaussian feature noise, outliers, and missing values at five severity levels, using a clean test set and a fixed preprocessing pipeline.
+  \item To define and compute the breaking point of each model for each noise combination, together with two aggregate robustness measures: the Breaking Point Index (BPI) and the Robustness Score (RS).
+  \item To perform a secondary synergy analysis that compares the observed compound-noise degradation with the sum of the corresponding single-noise degradations.
+  \item To answer the research sub-questions Q1--Q5 using the frozen official results and to compare the findings with the published literature.
+  \item To provide a read-only results API, an interactive React application for exploring the results, and a provenance and checksum mechanism that makes the official experiment auditable.
+\end{enumerate}
+
+\section{Scope}
+
+The scope of the project is deliberately bounded so that the methodology remains reproducible and the results remain interpretable.
+
+\textbf{In scope:}
+\begin{itemize}
+  \item Two public tabular datasets: Breast Cancer (569 samples, 30 features, 2 classes) and Digits (1,797 samples, 64 features, 10 classes).
+  \item Four classical classifiers: Logistic Regression, SVM with an RBF kernel, Decision Tree, and Random Forest.
+  \item Four noise types: label noise, Gaussian feature noise, outliers, and missing values.
+  \item All fifteen non-empty noise combinations and five severity levels (1--5), with a clean level 0 baseline.
+  \item A stratified 70/30 split, noise applied only to training data, and a clean test set.
+  \item Macro F1 as the primary metric and Accuracy as the secondary metric.
+  \item Breaking-point, BPI, RS, and synergy analyses.
+  \item A Python experiment engine, a FastAPI service, a React visualization application, and file-based provenance.
+\end{itemize}
+
+\textbf{Out of scope:}
+\begin{itemize}
+  \item Deep learning models and neural architectures.
+  \item Additional datasets, additional noise types, and real-world (instance-dependent) label noise.
+  \item Hyperparameter tuning and model selection.
+  \item Noise mitigation methods such as robust losses, sample selection, or cleaning.
+  \item Class-imbalance experiments and irrelevant-feature noise.
+  \item Authentication, cloud deployment, database storage, and distributed job queues.
+\end{itemize}
+
+\section{Contributions}
+
+The main contributions of the project are as follows.
+
+\begin{enumerate}
+  \item \textbf{A systematic compound-noise benchmark for classical tabular models.} The project evaluates all fifteen non-empty combinations of four noise types at five severity levels, across four models and two datasets, using a fixed and documented protocol. The official run contains 6,080 fits over ten seeds.
+  \item \textbf{A breaking-point formulation.} Instead of reporting only average accuracy, the project defines the breaking point as the first severity level at which mean Macro F1 falls to 90\% or less of the clean baseline. This makes the notion of ``model failure'' explicit and comparable across models and noise combinations.
+  \item \textbf{Two aggregate robustness measures.} The Breaking Point Index summarises how long a model survives across combinations, and the Robustness Score summarises retained performance across levels. Ranking by BPI and then RS gives a concise model comparison.
+  \item \textbf{A synergy analysis for compound noise.} The project measures whether the compound-noise drop is larger or smaller than the sum of the corresponding single-noise drops, and flags floor effects when the sum of single drops reaches the baseline.
+  \item \textbf{A reproducible and auditable implementation.} The engine uses deterministic seed sequences, a frozen severity table, a configuration hash, per-fit provenance, manifests, and SHA-256 checksums. The official Full results are locked and immutable after verification.
+  \item \textbf{Empirical findings.} The frozen results show that label noise is the most damaging single corruption, that compound noise is consistently more harmful than individual noise, that the multiclass dataset is more fragile than the binary dataset, and that the Decision Tree is the least robust model while Random Forest and Logistic Regression lead on different aggregate measures.
+  \item \textbf{An interactive results application.} A FastAPI backend and a React frontend expose the official results through curves, heatmaps, breaking-point tables, robustness rankings, and a separate custom-experiment workflow.
+\end{enumerate}
+
+\section{Organization of the Report}
+
+The remainder of the report is organised as follows.
+
+\begin{itemize}
+  \item \textbf{Chapter 2} reviews the literature on label noise, feature noise, compound noise, classical robust learning, and evaluation practice. It compares the reviewed papers and identifies the research gap addressed by this project.
+  \item \textbf{Chapter 3} describes the proposed methodology, including the datasets, noise injectors, severity levels, preprocessing pipeline, models, and evaluation metrics.
+  \item \textbf{Chapter 4} presents the system design: architecture, workflow, use cases, data flow, storage design, and module responsibilities.
+  \item \textbf{Chapter 5} describes the implementation of the experiment engine, API, worker, and frontend, together with the security and privacy considerations.
+  \item \textbf{Chapter 6} reports the experimental setup and the frozen official results, answers Q1--Q5, compares the findings with the literature, and discusses threats to validity.
+  \item \textbf{Chapter 7} concludes the report, states the limitations, and outlines future work.
+  \item The appendix documents the project's software and data contributions and the Sustainable Development Goals addressed by the work.
+\end{itemize}

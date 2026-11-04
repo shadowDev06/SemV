@@ -1,0 +1,223 @@
+\chapter{System Design}
+
+\section{System Architecture}
+
+The system is organised into four layers: a browser frontend, a FastAPI service, a background worker, and an experiment engine backed by file storage. Figure~\ref{fig:architecture} shows the overall architecture. The most important design rule is the separation of concerns: the browser only displays data and sends requests, the API only validates requests and reads or schedules work, and all machine learning is performed by the Python engine.
+
+\begin{figure}[H]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tikzpicture}[font=\small]
+\node[draw, rounded corners, fill=blue!8, minimum width=3.8cm, minimum height=1.0cm, align=center] (ui) at (0,5.6) {React frontend\\Vite + TypeScript};
+\node[draw, rounded corners, fill=blue!8, minimum width=3.8cm, minimum height=1.0cm, align=center] (api) at (0,4.2) {FastAPI service\\read-only results API};
+\node[draw, rounded corners, fill=orange!10, minimum width=3.8cm, minimum height=1.0cm, align=center] (jobs) at (0,2.8) {Job manager\\file-based queue};
+\node[draw, rounded corners, fill=green!8, minimum width=3.8cm, minimum height=1.0cm, align=center] (engine) at (0,1.4) {Experiment engine\\data, noise, pipeline, analysis};
+\node[draw, rounded corners, fill=gray!10, minimum width=3.8cm, minimum height=1.0cm, align=center] (store) at (0,0.0) {CSV and JSON results\\official and custom};
+\node[draw, rounded corners, fill=green!8, minimum width=3.4cm, minimum height=1.0cm, align=center] (worker) at (5.8,2.8) {Worker process\\custom jobs};
+\node[draw, rounded corners, fill=yellow!12, minimum width=3.4cm, minimum height=1.0cm, align=center] (cli) at (-5.8,1.4) {Official CLI\\MVP, Stage 2, Full};
+
+\draw[->, thick] (ui) -- node[right]{REST/JSON} (api);
+\draw[->, thick] (api) -- node[right]{submit and poll} (jobs);
+\draw[->, thick] (jobs) -- node[above]{FIFO queue} (worker);
+\draw[->, thick] (worker) -- node[below]{fits} (engine);
+\draw[->, thick] (cli) -- node[above]{official plan} (engine);
+\draw[->, thick] (engine) -- node[right]{result rows} (store);
+\end{tikzpicture}}
+\caption{High-level system architecture. Official experiments are started from the command line; custom experiments are queued through the API and executed by a separate worker process.}
+\label{fig:architecture}
+\end{figure}
+
+The frontend is a React single-page application built with Vite and TypeScript. It provides six views: an overview, an experiment setup page, a results dashboard, a visualizations page, a model comparison page, and experiment detail pages. It uses TanStack Query for server-state fetching and polling, and Recharts for charts. No machine learning or analysis calculation is performed in the browser.
+
+The FastAPI service exposes a read-only results API and a small experiment-management API. It validates requests, resolves official and custom result sources, and returns typed JSON. It never trains models. Official experiments are deliberately excluded from the API and are started only through command-line scripts, which protects the official results from accidental modification.
+
+The worker is a separate Python process. It consumes a file-based FIFO queue, executes one custom job at a time, writes progress to a job file, and checks for cancellation between fits. The worker uses Python multiprocessing with the \texttt{spawn} start method for Windows compatibility.
+
+The experiment engine is the core of the system. It loads data, creates splits, injects noise, builds pipelines, fits models, computes metrics, and performs the analysis. It can be imported and used without FastAPI, which makes it testable in isolation.
+
+Results are stored as CSV and JSON files. Official results live under \texttt{results/official/}, and custom results live under \texttt{results/custom/}. The two sources are never merged. A manifest records the configuration, package versions, split hashes, seeds, and provenance for each run.
+
+\section{System Workflow}
+
+\subsection{Official Experiment Workflow}
+
+The official workflow is deliberately conservative because its outputs are used for the final report.
+
+\begin{enumerate}
+  \item The researcher runs a validation script to check the environment, the dataset loading, and the structure of the project.
+  \item The researcher runs the MVP experiment for Breast Cancer with a small number of seeds and a subset of combinations.
+  \item Seven validation checks are performed on the MVP results: level-0 equality, test-set immutability, preprocessing statistics, noise rates, reproducibility, performance trend, and runtime.
+  \item The severity table is calibrated with an objective procedure. If the calibration recommends a revision, at most one predefined fallback table may be selected.
+  \item The severity table is frozen, and a configuration hash is written to the level configuration file.
+  \item Stage 2 runs both datasets with all fifteen combinations and seeds 0--2. The frozen hash is verified before execution.
+  \item Full runs both datasets with all fifteen combinations and seeds 0--9, producing 6,080 fits.
+  \item Derived analysis files and figures are generated.
+  \item A reproducibility subset is re-run and compared exactly, checksums are written, and the official Full results are locked.
+\end{enumerate}
+
+\subsection{Custom Experiment Workflow}
+
+The custom workflow allows a user to explore a smaller experiment without touching the official results.
+
+\begin{enumerate}
+  \item The user selects a dataset, one to four models, one to four noise types, a mode (single level or sweep), and a seed count.
+  \item The frontend sends the request to the API. The API validates the request and estimates the number of fits.
+  \item The job is written to the queue with a unique run identifier.
+  \item The worker picks up the job, builds a plan, and executes the fits.
+  \item Progress is written to the job file after each fit, and the frontend polls the job status.
+  \item Cancellation is cooperative: the worker checks a flag between fits and preserves the rows that have already been written.
+  \item When the job finishes, the frontend loads the custom results from the run directory.
+\end{enumerate}
+
+Custom results are stored under \texttt{results/custom/<run\_id>/} and are always labelled as custom in the user interface. They are never mixed with official results.
+
+\section{Use Case Diagram}
+
+The system has three kinds of actors: a viewer who explores results, a researcher who configures experiments and runs official pipelines, and the system itself, which executes jobs and enforces result integrity. Table~\ref{tab:usecases} lists the main use cases and their entry points.
+
+\begin{table}[H]
+\centering
+\caption{Actors and use cases.}
+\label{tab:usecases}
+\small
+\begin{tabular}{p{2.4cm}p{5.5cm}p{5.1cm}}
+\toprule
+\textbf{Actor} & \textbf{Use case} & \textbf{Entry point} \\
+\midrule
+Viewer & View the overview and robustness ranking & Overview page \\
+Viewer & Explore F1, accuracy, breaking points, heatmaps, and synergy & Results and visualizations pages \\
+Viewer & Compare models and inspect experiment provenance & Comparison and experiment detail pages \\
+Researcher & Configure and launch a custom experiment & Experiment setup page \\
+Researcher & Monitor progress, estimate runtime, and cancel a job & Experiment setup and detail pages \\
+Researcher & Run MVP, Stage 2, and Full official experiments & Command-line scripts \\
+Researcher & Validate, calibrate, and freeze the severity table & Validation scripts \\
+System & Execute fits, write result rows, and update progress & Engine and worker \\
+System & Enforce the official-result lock and configuration hash & Storage and validation layer \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The project is a local, single-user tool. Authentication and role-based access control are therefore out of scope. If the application were deployed for multiple users, authentication, per-user authorisation, and audit logging would be required before exposing the API beyond a trusted network.
+
+\section{Data Flow}
+
+The data flow for a single fit is as follows.
+
+\begin{enumerate}
+  \item The dataset is loaded into a feature matrix and a label vector.
+  \item A stratified 70/30 split is created for the chosen seed. The split is cached for the duration of the run and reused for all models and noise settings.
+  \item The clean training statistics (per-column mean and standard deviation) are computed. They are used to size Gaussian noise and outliers, and to build the clean baseline.
+  \item The selected noise types are applied to the training split in the fixed order: label, Gaussian, outliers, missing.
+  \item The pipeline is fitted on the corrupted training split: mean imputation, standardisation, classifier.
+  \item The fitted pipeline predicts the clean test split.
+  \item Macro F1 and Accuracy are computed, together with the fit time and the noise statistics.
+  \item One row is appended to the raw results file and flushed to disk.
+  \item After the run, the analysis layer reads the raw rows and produces summary, baseline, breaking-point, synergy, and robustness files.
+  \item The API reads the derived files and serves them to the frontend, which renders tables and charts.
+\end{enumerate}
+
+The test set never enters the noise injectors, the imputer, or the scaler. This is the central leakage-prevention rule. The clean baseline is the single approved exception to the clean-training rule: it is fitted once per $(dataset, model, seed)$ and reused analytically as level 0 for every combination.
+
+\section{Database Design}
+
+The system does not use a relational database. It uses a file-based storage design that is simple to audit and easy to reproduce. The directory layout is shown below.
+
+\begin{verbatim}
+results/
+  official/
+    mvp/
+    stage2/
+    full/
+      raw_results.csv
+      summary.csv
+      baselines.csv
+      breaking_points.csv
+      synergy.csv
+      robustness.csv
+      manifest.json
+      validation_report.json
+      figures/
+      CHECKSUMS.txt
+  custom/
+    <run_id>/
+      job.json
+      manifest.json
+      raw_results.csv
+      summary.csv
+      baselines.csv
+      breaking_points.csv
+      synergy.csv
+      robustness.csv
+\end{verbatim}
+
+The raw results file contains one row per fit. Its main fields are grouped in Table~\ref{tab:rawschema}. The full column list is fixed in the implementation and is recorded in the manifest.
+
+\begin{table}[H]
+\centering
+\caption{Main groups of fields in the raw results file.}
+\label{tab:rawschema}
+\small
+\begin{tabular}{p{2.2cm}p{8.0cm}p{3.0cm}}
+\toprule
+\textbf{Group} & \textbf{Fields} & \textbf{Purpose} \\
+\midrule
+Identity & run\_id, run\_type, stage & Identify the run and distinguish official from custom data \\
+Experiment & dataset, model, seed, combo, n\_noises, level & Define the fitted configuration \\
+Outcome & macro\_f1, accuracy, fit\_time\_s, n\_train, n\_test, noise\_stats & Record the measured result and the corruption summary \\
+Provenance & timestamp\_utc, config\_hash, methodology\_version, levels\_version, levels\_frozen, status, error\_msg & Support reproducibility and auditing \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Derived files are generated from the raw rows. Table~\ref{tab:derived} lists their contents.
+
+\begin{table}[H]
+\centering
+\caption{Derived analysis files.}
+\label{tab:derived}
+\small
+\begin{tabular}{p{3.6cm}p{10.0cm}}
+\toprule
+\textbf{File} & \textbf{Contents} \\
+\midrule
+summary.csv & Mean and standard deviation of F1 and accuracy by dataset, model, combination, and level \\
+baselines.csv & Clean F1 and accuracy baseline and the 90\% threshold \\
+breaking\_points.csv & First breaking level, whether it was reached, F1 at the breaking point, and seeds below the threshold \\
+synergy.csv & Compound drop, sum of single drops, synergy, and floor-effect flag for every compound combination and level \\
+robustness.csv & BPI, RS, and rank for the singles and all scopes \\
+manifest.json & Configuration, package versions, split hashes, seeds, and provenance \\
+CHECKSUMS.txt & SHA-256 checksums of the locked official Full artefacts \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Writes are atomic for JSON files and flushed after each row for CSV files. Failed fits are recorded with an error status and are never hidden by deleting rows. The official Full directory is immutable after the final reproducibility check: no regeneration, overwrite, manual edit, deletion, or replacement is permitted without an approved recovery plan.
+
+\section{Module Description}
+
+The codebase is divided into modules with narrow responsibilities. Table~\ref{tab:modules} summarises them.
+
+\begin{table}[H]
+\centering
+\caption{Module responsibilities.}
+\label{tab:modules}
+\small
+\begin{tabular}{p{0.7cm}p{3.0cm}p{8.4cm}}
+\toprule
+\textbf{No.} & \textbf{Module} & \textbf{Responsibility} \\
+\midrule
+1 & Data & Load the two datasets, create stratified splits, and compute split hashes \\
+2 & Levels and hashing & Load the severity table, expose the active levels, and compute and verify the configuration hash \\
+3 & Noise & Implement the four deterministic injectors and the canonical compound order \\
+4 & Pipelines & Build the imputer, scaler, and classifier pipeline and enforce leakage-free fitting \\
+5 & Metrics & Compute Macro F1 and Accuracy \\
+6 & Runner & Build run plans, execute fits, support resume and cancellation, and write result rows \\
+7 & Analysis & Compute baselines, summaries, breaking points, synergy, and robustness rankings \\
+8 & Storage & Provide safe result paths, CSV append and read, atomic JSON writes, and manifest handling \\
+9 & Figures & Generate the official matplotlib report figures \\
+10 & API & Expose configuration, overview, results, experiment, and estimate endpoints \\
+11 & Jobs and worker & Manage the file-based queue, progress, heartbeat, cancellation, and custom execution \\
+12 & Frontend & Provide the six pages, charts, filters, loading states, and custom-experiment flow \\
+\bottomrule
+\end{tabular}
+\end{table}

@@ -1,0 +1,298 @@
+\chapter{Proposed Methodology}
+
+\section{Overview}
+
+The project is implemented as a reproducible experiment engine with two interfaces. The engine performs all data loading, noise injection, model fitting, evaluation, and analysis. A command-line interface runs the official experiments, and a FastAPI service with a React frontend exposes the official results and supports separate custom experiments.
+
+The methodology is fixed before the main experiment and is stored in a machine-readable configuration. The central idea is to hold everything constant except the corruption being studied. For every dataset and seed, the same stratified split is reused for all models and all noise combinations. The test set is never corrupted and is never used for fitting. For levels 1--5, the preprocessing pipeline and the classifier are fitted only on the corrupted training split. A single clean baseline fit at level 0 provides the reference performance for each dataset and model.
+
+The engine evaluates four noise types, all fifteen non-empty combinations of those types, and five severity levels. This produces a dense performance surface that can be summarised as curves, breaking points, heatmaps, robustness rankings, and synergy estimates.
+
+\section{System Requirements}
+
+\subsection{Software Requirements}
+
+The experiment engine is implemented in Python and uses the scientific Python stack. The frontend is implemented in TypeScript with React. Table~\ref{tab:software} lists the principal software components and the versions recorded in the official run manifest.
+
+\begin{table}[H]
+\centering
+\caption{Principal software components and versions used for the official run.}
+\label{tab:software}
+\small
+\begin{tabular}{p{4.0cm}p{3.4cm}p{5.6cm}}
+\toprule
+\textbf{Component} & \textbf{Version} & \textbf{Role} \\
+\midrule
+Python & 3.11.9 & Experiment engine, scripts, and API \\
+NumPy & 1.26.4 & Numerical arrays and deterministic random generation \\
+pandas & 2.2.2 & Tabular data handling and CSV output \\
+SciPy & 1.13.1 & Scientific utilities used by scikit-learn \\
+scikit-learn & 1.5.2 & Datasets, preprocessing, models, and metrics \\
+matplotlib & 3.9.2 & Report figures \\
+FastAPI & 0.115.0 & Read-only results API \\
+Uvicorn & 0.30.6 & ASGI server \\
+Pydantic & 2.9.2 & Request and response schemas \\
+pytest & 8.3.3 & Automated tests \\
+React, Vite, TypeScript & Current stable & Frontend application \\
+Tailwind CSS, shadcn/ui & Current stable & Styling and UI components \\
+Recharts, TanStack Query & Current stable & Charts and server-state management \\
+CSV and JSON files & -- & Result storage, manifests, and job state \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Hardware Requirements}
+
+The official Full experiment is a single-process workload and does not require a GPU. It completed 6,080 fits in 703.8 seconds on a standard Windows workstation, with a mean fit time of 0.1038 seconds and a maximum fit time of 1.1598 seconds. A machine with at least 8 GB of RAM and a modern multi-core CPU is sufficient. The frontend and API can run on the same machine.
+
+\subsection{Storage Requirements}
+
+Results are stored as CSV and JSON files. The official Full run produces one raw row per fit and five derived analysis files. The manifest records the configuration, package versions, split hashes, and provenance information. No database is required.
+
+\section{Proposed Approach}
+
+The methodology proceeds in the following steps.
+
+\begin{enumerate}
+  \item \textbf{Load the dataset.} The selected dataset is loaded from scikit-learn. The feature matrix $X$ and the label vector $y$ are kept unchanged; no feature engineering is performed.
+  \item \textbf{Create a stratified split.} For each dataset and seed $s$, the data is split into 70\% training and 30\% test using stratification on the class label. The split is computed once per $(dataset, seed)$ and reused for every model and every noise setting.
+  \item \textbf{Keep the test set clean.} The test features and labels are stored separately and are never modified. All noise injection and all preprocessing statistics are computed from the training split only.
+  \item \textbf{Estimate clean statistics.} The per-column mean $\mu_j$ and standard deviation $\sigma_j$ of the clean training features are computed. They are used only to size Gaussian noise and outliers, and to create the approved level-0 baseline.
+  \item \textbf{Fit the clean baseline.} For each $(dataset, model, seed)$, the pipeline is fitted once on the clean training split. The result is stored with combination \texttt{clean} and level 0. This row is reused analytically as level 0 for every noise combination.
+  \item \textbf{Apply noise.} For each combination $C$ and level $L \in \{1,\ldots,5\}$, the selected noise types are applied to the training split in the fixed order label, Gaussian, outliers, missing. The same noise realisation is used for a single noise and for the corresponding component inside a compound combination.
+  \item \textbf{Fit the pipeline.} A fresh pipeline is fitted on the corrupted training split. The pipeline consists of mean imputation, standardisation, and the classifier. No step is fitted on the test set.
+  \item \textbf{Evaluate.} The fitted pipeline predicts the clean test set. Macro F1 and Accuracy are recorded, together with the fit time and summary statistics of the injected noise.
+  \item \textbf{Aggregate.} For each $(dataset, model, combination, level)$, the mean and sample standard deviation over the official seeds are computed. The clean baseline and the 90\% threshold are derived from the level-0 rows.
+  \item \textbf{Analyse.} Breaking points, BPI, RS, and synergy are computed from the aggregated results, and the derived tables and figures are written to the official results directory.
+\end{enumerate}
+
+The split sizes are 398 training and 171 test samples for Breast Cancer, and 1,257 training and 540 test samples for Digits. The difference follows from the stratified 70/30 split and the dataset sizes.
+
+\section{Algorithms / Models}
+
+\subsection{Classification Models}
+
+Four classical classifiers are used with fixed hyperparameters. No hyperparameter tuning or model selection is performed, because tuning would introduce a result-dependent degree of freedom that could undermine the comparison. Table~\ref{tab:models} lists the configurations.
+
+\begin{table}[H]
+\centering
+\caption{Fixed classifier configurations.}
+\label{tab:models}
+\small
+\begin{tabular}{p{3.2cm}p{6.2cm}p{3.8cm}}
+\toprule
+\textbf{Model} & \textbf{Configuration} & \textbf{Family} \\
+\midrule
+Logistic Regression & \texttt{LogisticRegression(}\newline\texttt{max\_iter=1000,}\newline\texttt{random\_state=seed)} & Linear, probabilistic \\
+SVM (RBF) & \texttt{SVC(kernel='rbf', C=1.0, gamma='scale')} & Kernel, maximum margin \\
+Decision Tree & \texttt{DecisionTreeClassifier(}\newline\texttt{random\_state=seed)} & Recursive partitioning \\
+Random Forest & \texttt{RandomForestClassifier(}\newline\texttt{n\_estimators=100,}\newline\texttt{random\_state=seed,}\newline\texttt{n\_jobs=1)} & Bagged ensemble \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Logistic regression models the class posterior through a linear decision function and is a standard baseline for tabular classification \cite{hastie2009elements}. The support vector machine with an RBF kernel constructs a non-linear maximum-margin boundary \cite{cortes1995support}. The decision tree recursively partitions the feature space and is highly interpretable but sensitive to small changes in the data \cite{quinlan1986induction}. The random forest averages many randomised trees and usually reduces variance \cite{breiman2001random}.
+
+\subsection{Preprocessing Pipeline}
+
+The pipeline is the same for every model:
+\begin{center}
+\texttt{SimpleImputer(strategy='mean', keep\_empty\_features=True)} \\
+$\rightarrow$ \texttt{StandardScaler} \\
+$\rightarrow$ \texttt{Classifier}
+\end{center}
+
+Mean imputation is required because missing values are injected. Standardisation is required because the models have different sensitivities to feature scale, and because Gaussian noise and outliers are sized in units of the clean training standard deviation. The imputer and the scaler are fitted on the training split that is passed to the pipeline; at noisy levels, this is the corrupted training split. This prevents information from the test set from leaking into preprocessing.
+
+\subsection{Noise Injectors}
+
+The four noise injectors are deterministic given the seed, the noise identifier, and the severity level. The random generator is
+\begin{equation}
+\text{rng} = \texttt{np.random.default\_rng}\big(\texttt{SeedSequence}([s, \, id, \, L])\big),
+\label{eq:rng}
+\end{equation}
+where $s$ is the seed, $id$ is the noise identifier (label = 1, Gaussian = 2, outliers = 3, missing = 4), and $L$ is the level. This construction ensures that the same component noise realisation is used when the noise appears alone and when it appears inside a compound combination.
+
+\paragraph{Label noise.} For a flip rate $r$, the number of flipped labels is
+\begin{equation}
+n_{\text{flip}} = \operatorname{round}(r \cdot n).
+\end{equation}
+Indices are selected without replacement, and each selected label is replaced by a different class drawn uniformly from the remaining classes. The operation is applied to the training labels only.
+
+\paragraph{Gaussian feature noise.} For a scale factor $k$ and per-column clean training standard deviation $\sigma_j$,
+\begin{equation}
+x_{ij} \leftarrow x_{ij} + z_{ij}, \qquad z_{ij} \sim \mathcal{N}(0,1)\cdot (k\sigma_j).
+\end{equation}
+Columns with $\sigma_j = 0$ are left unchanged. The noise is added cell-wise, so the number of affected cells is recorded in the noise statistics.
+
+\paragraph{Outliers.} Eligible cells are those in columns with $\sigma_j > 0$. For an outlier cell rate $r$, the number of modified cells is
+\begin{equation}
+n_{\text{outlier}} = \operatorname{round}(r \cdot n_{\text{eligible}}).
+\end{equation}
+Selected cells are set to $\mu_j + 5\sigma_j$ or $\mu_j - 5\sigma_j$, with the sign chosen at random. This creates extreme values without changing the underlying column distribution for the remaining cells.
+
+\paragraph{Missing values.} For a missing cell rate $p$, each cell is masked independently:
+\begin{equation}
+m_{ij} \sim \operatorname{Bernoulli}(p), \qquad x_{ij} \leftarrow \text{NaN if } m_{ij}=1.
+\end{equation}
+Missing values are injected last, after label noise, Gaussian noise, and outliers, so that imputation is not applied to cells that are later replaced by outliers.
+
+Table~\ref{tab:noise} summarises the injectors.
+
+\begin{table}[H]
+\centering
+\caption{Noise injectors and their parameters.}
+\label{tab:noise}
+\small
+\begin{tabular}{p{2.4cm}p{2.0cm}p{5.0cm}p{3.4cm}}
+\toprule
+\textbf{Noise} & \textbf{ID} & \textbf{Operation} & \textbf{Parameter} \\
+\midrule
+Label & 1 & Flip $n_{\text{flip}}$ training labels to different classes & Flip rate $r$ \\
+Gaussian & 2 & Add $\mathcal{N}(0,1)\cdot k\sigma_j$ to each cell & Scale $k$ \\
+Outliers & 3 & Replace selected eligible cells with $\mu_j \pm 5\sigma_j$ & Cell rate $r$ \\
+Missing & 4 & Set selected cells to NaN & Cell rate $p$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Compound Noise}
+
+Compound noise is applied in the canonical order label, Gaussian, outliers, missing. The order is fixed because the injectors are not commutative: replacing labels before adding feature noise is different from adding feature noise first, and injecting missing values before imputing would change which cells are affected. Fixing the order makes compound results comparable across models and seeds.
+
+The fifteen combinations are the four single noises, the six pairs, the four triples, and the single four-way combination. This is the complete set of non-empty subsets of four noise types:
+\begin{equation}
+\binom{4}{1}+\binom{4}{2}+\binom{4}{3}+\binom{4}{4} = 4+6+4+1 = 15.
+\end{equation}
+
+\section{Data Collection and Preprocessing}
+
+\subsection{Datasets}
+
+Two public tabular datasets are used. Table~\ref{tab:datasets} summarises their properties.
+
+\begin{table}[H]
+\centering
+\caption{Datasets used in the experiment.}
+\label{tab:datasets}
+\footnotesize
+\begin{tabular}{p{2.6cm}p{1.4cm}p{1.4cm}p{1.3cm}p{2.0cm}p{3.4cm}}
+\toprule
+\textbf{Dataset} & \textbf{Samples} & \textbf{Features} & \textbf{Classes} & \textbf{Train/Test} & \textbf{Character} \\
+\midrule
+Breast Cancer & 569 & 30 & 2 & 398 / 171 & Binary medical classification \\
+Digits & 1,797 & 64 & 10 & 1,257 / 540 & Multiclass handwritten digits \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The Breast Cancer Wisconsin dataset was introduced in the breast cytology work of Wolberg and Mangasarian and Street et al.\ \cite{wolberg1990multisurface,street1993nuclear}. It contains features computed from digitised images of fine-needle aspirates of breast masses, and the task is to distinguish malignant from benign cases. The dataset is distributed through the UCI Machine Learning Repository and is available in scikit-learn \cite{dua2017uci,pedregosa2011scikit}.
+
+The Digits dataset contains 8$\times$8 grayscale images of handwritten digits, flattened into 64 features, with ten classes. It is also available in scikit-learn \cite{pedregosa2011scikit}. The two datasets provide a useful contrast: one is binary and low-dimensional relative to its sample size, while the other is multiclass and higher-dimensional.
+
+No new data was collected for this project. The contribution is the corruption protocol and the resulting benchmark, not a new dataset.
+
+\subsection{Preprocessing}
+
+The following preprocessing rules are applied:
+
+\begin{itemize}
+  \item No feature selection, feature engineering, or dimensionality reduction is performed.
+  \item The stratified 70/30 split is created once per $(dataset, seed)$ and reused for all models and noise settings.
+  \item The test set is kept clean and is never used to fit the imputer, the scaler, or the classifier.
+  \item Mean imputation and standardisation are performed inside the pipeline, after noise injection, and are fitted on the training split only.
+  \item Variables that are constant in the clean training split are left unchanged by Gaussian noise, because their clean standard deviation is zero.
+  \item The same preprocessed representation is used for all four models.
+\end{itemize}
+
+\subsection{Severity Levels}
+
+The severity levels are stored in a versioned configuration file. Level 0 is the clean baseline. Levels 1--5 increase each noise parameter monotonically. Table~\ref{tab:levels} lists the frozen values used in the official run.
+
+\begin{table}[H]
+\centering
+\caption{Frozen severity levels (active table A).}
+\label{tab:levels}
+\footnotesize
+\begin{tabular}{ccccc}
+\toprule
+\textbf{Level} & \textbf{Label flip rate} & \textbf{Gaussian scale $k$} & \textbf{Outlier cell rate} & \textbf{Missing cell rate} \\
+\midrule
+0 & 0.00 & 0.00 & 0.00 & 0.00 \\
+1 & 0.05 & 0.25 & 0.02 & 0.10 \\
+2 & 0.10 & 0.50 & 0.05 & 0.20 \\
+3 & 0.20 & 1.00 & 0.10 & 0.30 \\
+4 & 0.30 & 1.50 & 0.15 & 0.40 \\
+5 & 0.40 & 2.00 & 0.20 & 0.50 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The level table was calibrated on the MVP results using an objective procedure and then frozen before Stage 2 and Full. The frozen configuration hash is recorded in every result row and in the run manifest. Equal level numbers do not imply equal measured harm across noise types; they are a common severity index, not a claim of physical equivalence.
+
+\section{Evaluation Metrics}
+
+\subsection{Primary and Secondary Metrics}
+
+Macro F1 is the primary metric because it weights all classes equally and is therefore appropriate for the multiclass Digits dataset. For $K$ classes, precision $P_k$ and recall $R_k$,
+\begin{equation}
+\text{Macro F1} = \frac{1}{K}\sum_{k=1}^{K} \frac{2 P_k R_k}{P_k + R_k},
+\end{equation}
+with a zero denominator treated as zero. Accuracy is the secondary metric:
+\begin{equation}
+\text{Accuracy} = \frac{1}{n}\sum_{i=1}^{n} \mathbf{1}\left[\hat{y}_i = y_i\right].
+\end{equation}
+
+For each $(dataset, model, combination, level)$, the mean and sample standard deviation over seeds are computed. The sample standard deviation uses $ddof=1$.
+
+\subsection{Clean Baseline and Breaking Point}
+
+The clean baseline for dataset $d$ and model $m$ is
+\begin{equation}
+B_{d,m} = \frac{1}{|S|}\sum_{s \in S} \text{F1}^{(0)}_{d,m,s},
+\end{equation}
+where $S$ is the set of official seeds and $\text{F1}^{(0)}$ is the level-0 Macro F1. The breaking threshold is
+\begin{equation}
+\tau_{d,m} = 0.90 \times B_{d,m}.
+\end{equation}
+
+The breaking point for combination $c$ is the first level at which the seed-averaged Macro F1 falls to or below the threshold:
+\begin{equation}
+L^{*}_{d,m,c} = \min\left\{ L \in \{1,\ldots,5\} : \overline{\text{F1}}_{d,m,c}(L) \leq \tau_{d,m} \right\}.
+\end{equation}
+If the set is empty, the breaking point is reported as \emph{not reached}. The number of individual seeds below the threshold at the breaking level is also recorded, which shows how consistent the failure is.
+
+\subsection{Aggregate Robustness Measures}
+
+The Breaking Point Index (BPI) summarises how long a model survives across a set of combinations:
+\begin{equation}
+\text{BPI}_{d,m}^{(\text{scope})} = \frac{1}{|\mathcal{C}_{\text{scope}}|}\sum_{c \in \mathcal{C}_{\text{scope}}} \ell_{d,m,c},
+\end{equation}
+where $\ell_{d,m,c} = L^{*}_{d,m,c}$ if the breaking point is reached and $\ell_{d,m,c}=6$ otherwise. Two scopes are computed: \emph{singles}, which uses the four single-noise combinations, and \emph{all}, which uses all fifteen combinations.
+
+The Robustness Score (RS) summarises retained performance across levels:
+\begin{equation}
+\text{RS}_{d,m} = \frac{1}{5}\sum_{L=1}^{5} \frac{\overline{\text{F1}}_{d,m,c}(L)}{B_{d,m}},
+\end{equation}
+where the average is taken over the combinations in the selected scope. Models are ranked by BPI in descending order, with RS as the tie-breaker.
+
+\subsection{Synergy}
+
+For a compound combination $C$ at level $L$, the compound drop and the sum of single-noise drops are
+\begin{align}
+\Delta_{\text{compound}}(C,L) &= B_{d,m} - \overline{\text{F1}}_{d,m,C}(L), \\
+\Delta_{\text{single}}(C,L) &= \sum_{i \in C} \left( B_{d,m} - \overline{\text{F1}}_{d,m,\{i\}}(L) \right).
+\end{align}
+Synergy is defined as
+\begin{equation}
+\text{Synergy}(C,L) = \Delta_{\text{compound}}(C,L) - \Delta_{\text{single}}(C,L).
+\end{equation}
+A positive value means that the compound corruption is worse than the sum of its parts; a negative value means that the compound corruption is less than additive. Because the sum of single drops can exceed the baseline, a floor-effect flag is set when
+\begin{equation}
+\Delta_{\text{single}}(C,L) \geq B_{d,m}.
+\end{equation}
+Synergy is treated as a secondary analysis, because it depends on the chosen severity scale and can be affected by floor effects at high levels.
+
+\section{Summary}
+
+This chapter defined the methodology used throughout the project. The experiment uses two tabular datasets, four fixed classical classifiers, four deterministic noise injectors, all fifteen non-empty noise combinations, and five severity levels. Noise is applied only to the training data, the test set remains clean, and the pipeline is fitted on the corrupted training split. Macro F1 is the primary metric, and breaking points, BPI, RS, and synergy provide the analytical summaries. The methodology is frozen and hashed so that the official results can be reproduced and audited.

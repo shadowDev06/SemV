@@ -1,0 +1,213 @@
+\chapter{Literature Review}
+
+\section{Introduction}
+
+The literature review examines how the research community has studied data corruption and model robustness, with emphasis on work that is directly relevant to individual and compound noise. The purpose is threefold: to establish what is already known, to identify the experimental settings that have been used, and to isolate the gap that the present project addresses.
+
+The review was conducted using the IEEE Xplore Digital Library as the primary source, supplemented by ScienceDirect, SpringerLink, and Google Scholar for cross-checking metadata and for foundational papers. The search terms included combinations of \emph{noisy labels}, \emph{feature noise}, \emph{label noise robustness}, \emph{compound noise}, \emph{hybrid noise}, \emph{data corruption}, \emph{outliers}, \emph{missing values}, and \emph{classification}. Papers were included when they (i) appeared in a peer-reviewed journal or conference, (ii) addressed supervised classification under corrupted training data, and (iii) reported an experimental evaluation. Priority was given to four recent IEEE papers that collectively cover label noise, feature noise, hybrid noise, and compound noise. Foundational surveys and dataset papers were added to support the methodology.
+
+The review is organised as follows. Section~2.2 describes the main families of existing approaches. Section~2.3 reviews the four core papers and the supporting literature in detail. Section~2.4 identifies the research gap, and Section~2.5 summarises the findings.
+
+\section{Existing Systems}
+
+\subsection{Label-Noise-Robust Deep Learning}
+
+The largest body of work addresses label noise in deep neural networks. Song et al.\ organise this literature into five methodological families \cite{song2023survey}:
+
+\begin{enumerate}
+  \item \textbf{Robust architecture.} A noise adaptation layer is added above the base network to model the label transition process, or a dedicated architecture is designed for complex noise. Examples include noise adaptation layers, probabilistic noise modelling, and contrastive-additive noise networks.
+  \item \textbf{Robust regularisation.} Explicit regularisers (weight decay, dropout, bilevel learning, annotator confusion) and implicit regularisers (data augmentation, label smoothing, mixup, adversarial training) reduce overfitting to corrupted labels.
+  \item \textbf{Robust loss functions.} Noise-tolerant losses such as mean absolute error, generalised cross entropy, symmetric cross entropy, curriculum loss, and active passive loss are designed so that risk minimisation remains well behaved under label noise.
+  \item \textbf{Loss adjustment.} The loss is corrected, reweighted, refurbished, or learned through meta-learning so that likely-corrupted examples contribute less to training.
+  \item \textbf{Sample selection.} Clean examples are identified using small-loss heuristics, multi-network disagreement, or multi-round refinement, and training is concentrated on the selected subset.
+\end{enumerate}
+
+The survey reports that no existing method satisfies all six evaluation properties it defines: flexibility, no pretraining, full exploration, no supervision, heavy-noise robustness, and complex-noise robustness \cite{song2023survey}. This is an important finding because it shows that robustness methods involve trade-offs rather than a single dominant solution.
+
+\subsection{Feature Noise and Data Augmentation}
+
+Feature noise changes the input distribution rather than the labels. It has traditionally been studied as a form of data augmentation, where random or adversarial perturbations are added to features to improve generalisation. Gaussian noise, Gaussian blur, impulse noise, snow, and adversarial perturbations are common choices. Robust statistics provides a complementary view: estimators can be designed to limit the influence of extreme observations \cite{huber1964robust}.
+
+Recent work has begun to connect feature noise with label noise. Zeng et al.\ show that adding Gaussian noise to training features can improve the generalisation of deep networks trained with noisy labels \cite{zeng2025feature}. Their analysis uses the PAC-Bayes generalisation bound and treats the addition of Gaussian noise as a Gaussian communication channel. The work is discussed in detail in Section~2.3.3.
+
+\subsection{Hybrid and Compound Noise}
+
+Several studies recognise that real data rarely contains only one type of corruption. Hybrid noise refers to the simultaneous presence of corrupted features and noisy labels, and compound noise refers to multiple corruption processes acting together. Zhang et al.\ study hybrid noise in multilabel learning and propose a framework that handles feature and label noise jointly \cite{zhang2020hybrid}. Chen develops a robust semisupervised deep generative model for data affected by compound noise involving outliers and noisy labels \cite{chen2023compound}.
+
+These papers establish that compound noise is a genuine research problem and that methods designed for a single corruption type may not transfer directly. However, they do not provide a common protocol for enumerating all subsets of noise types, nor do they quantify the severity at which a model fails.
+
+\subsection{Classical Machine Learning on Tabular Data}
+
+Classical models remain important for tabular data because they are interpretable, inexpensive, and often competitive on small or medium-sized datasets. Logistic regression is a standard linear classifier, support vector machines construct maximum-margin decision boundaries, decision trees partition the feature space recursively, and random forests average many randomised trees \cite{hastie2009elements,cortes1995support,quinlan1986induction,breiman2001random}.
+
+The label-noise literature notes that conventional models such as support vector machines and decision trees are not inherently robust to noisy labels \cite{song2023survey}. Earlier surveys describe classical remedies such as data cleaning, surrogate losses, probabilistic methods, and model-specific modifications \cite{frenay2014classification}. Yet the empirical evidence for classical models is scattered across different datasets, noise models, and evaluation metrics, and few studies report a systematic severity sweep.
+
+\subsection{Evaluation Practice}
+
+Evaluation in the label-noise literature is usually based on test accuracy on a clean test set \cite{song2023survey}. When sample selection is used, label precision and label recall are also reported; when label refurbishment is used, correction error is reported. Noise rate estimation is treated as a separate problem and is approached through noise transition matrices, Gaussian mixture models on the loss distribution, or cross-validation.
+
+Public benchmarks include MNIST, Fashion-MNIST, CIFAR-10, CIFAR-100, SVHN, ImageNet, and tiny-ImageNet, as well as real-world noisy datasets such as ANIMAL-10N, CIFAR-10N, CIFAR-100N, Food-101N, Clothing1M, and WebVision \cite{song2023survey}. The use of different datasets, architectures, noise models, and metrics makes it difficult to compare results across papers. This motivates the reproducible protocol adopted in the present project.
+
+\section{Review of Research Papers}
+
+\subsection{Learning From Noisy Labels With Deep Neural Networks: A Survey}
+
+Song et al.\ present a comprehensive survey of robust training under label noise \cite{song2023survey}. The authors review 174 recent studies and compare 62 state-of-the-art robust training methods. The methods are grouped into the five families described in Section~2.2.1, and they are compared using six properties: flexibility, no pretraining, full exploration, no supervision, heavy-noise robustness, and complex-noise robustness.
+
+The survey makes several observations that are directly relevant to this project. First, noisy labels can severely degrade the generalisation of deep networks, and conventional regularisation techniques such as data augmentation, weight decay, dropout, and batch normalisation do not by themselves eliminate the problem. Second, the accuracy drop caused by label noise is often more harmful than the drop caused by input noise. Third, no single method supports all six desirable properties; the supported properties depend on the methodological family. Fourth, the literature identifies several open directions, including instance-dependent label noise, multilabel data, class imbalance, fairness, the connection with input perturbation, and computational efficiency.
+
+The survey also documents the standard experimental design: clean benchmark datasets are artificially corrupted with symmetric or asymmetric label noise, and performance is measured on a clean test set using accuracy. Noise rate estimation is discussed through transition matrices, Gaussian mixture models, and cross-validation.
+
+\textbf{Relation to this project.} The survey provides the taxonomy and evaluation vocabulary used in this report. It also exposes two limitations that motivate the present work: its scope is deep learning, and feature noise, missing values, and outliers are outside its main focus. It does not define a breaking point or sweep all combinations of corruption types. This project retains the emphasis on clean-test evaluation and controlled noise injection but applies it to classical tabular models and to a broader set of corruption types.
+
+\subsection{Hybrid Noise-Oriented Multilabel Learning}
+
+Zhang et al.\ address multilabel learning in the presence of hybrid noise \cite{zhang2020hybrid}. In multilabel learning, each example can belong to several classes at once, and both the input features and the label assignments may be corrupted. The paper proposes a framework that is designed to handle feature noise and label noise together rather than treating them as independent problems.
+
+The significance of this work for the present project is conceptual. It shows that hybrid noise is a recognised setting and that joint treatment can be different from handling each corruption type in isolation. It also highlights the difficulty of multilabel supervision, where a single example has a set of labels and the effect of a corrupted label is not simply a class flip.
+
+\textbf{Relation to this project.} The paper establishes the importance of compound corruption but does not provide a severity sweep, a breaking-point definition, or a comparison of classical single-label tabular models. This project extends the compound-noise idea to single-label tabular classification and quantifies the interaction between noise types through the synergy measure.
+
+\subsection{Feature Noise Boosts DNN Generalization Under Label Noise}
+
+Zeng et al.\ study whether feature noise can improve the generalisation of deep networks trained with noisy labels \cite{zeng2025feature}. The paper makes both theoretical and empirical contributions.
+
+On the theoretical side, the authors use the PAC-Bayes generalisation bound. They argue that symmetric label noise increases the entropy of the labels and loosens the generalisation bound, which is consistent with the observation that label noise harms generalisation. They then show that adding Gaussian noise to the training features can be viewed as a Gaussian channel. The channel imposes a constant upper bound on the mutual information between the model weights and the features, which tightens the generalisation bound. The paper reports an approximate upper bound of 0.35 nats for a representative setting. A qualitative proposition states that feature noise with higher randomness produces a tighter bound, which explains why Gaussian noise and impulse noise tend to outperform low-randomness corruptions such as Gaussian blur and snow.
+
+On the empirical side, the authors evaluate the feature-noise method on MNIST, Fashion-MNIST, miniImageNet, and ADNI. They use LeNet-5, ResNet-50, and a two-layer graph convolutional network, and they compare against a baseline plus nine robust-training methods, including sample reweighting, co-teaching, co-teaching+, early stopping, early-learning regularisation, progressive early stopping, nested co-teaching, and a bound-reducing method. Symmetric label noise is applied at rates 0, 0.2, 0.5, and 0.8, and accuracy is measured on a clean test set. The reported average improvements over the best comparison methods are 2.73\%, 1.55\%, 4.75\%, and 3.65\% on MNIST, Fashion-MNIST, miniImageNet, and ADNI respectively. The benefit is larger at high label-noise rates. The paper also visualises the PAC-Bayes bound and saliency maps, and it studies the Gaussian noise standard deviation as a hyperparameter.
+
+\textbf{Relation to this project.} This paper is the closest to the present work in its treatment of feature noise and label noise together. However, its objective is mitigation: feature noise is added deliberately to improve robustness. In contrast, the present project treats Gaussian feature noise as a corruption whose severity must be measured. The paper does not enumerate all combinations of noise types, does not study missing values or outliers as separate corruptions, and does not define a breaking point. Its theoretical insight that feature noise and label noise interact is nevertheless an important motivation for the compound-noise analysis performed here.
+
+\subsection{Robust Semisupervised Deep Generative Model Under Compound Noise}
+
+Chen develops a robust semisupervised deep generative model for data affected by compound noise \cite{chen2023compound}. The setting involves outliers and noisy labels acting together, and the proposed model is designed to learn robust representations under these combined corruptions in a semisupervised learning framework.
+
+The paper is relevant because it treats compound noise as a first-class problem rather than as a sequence of independent corruptions. It also shows that generative modelling and semisupervised learning can be combined to improve robustness when labels are scarce and corrupted.
+
+\textbf{Relation to this project.} The paper demonstrates that compound noise is recognised in the deep-learning literature, but its evaluation is specific to a generative semisupervised setting. It does not provide a systematic comparison of all subsets of corruption types, nor does it report the severity at which classical models fail. This project complements it by providing a controlled, reproducible, tabular benchmark of individual and compound corruption.
+
+\subsection{Foundational and Supporting Work}
+
+Several foundational papers support the methodology. Zhang et al.\ show that deep networks can memorise random labels and that regularisation alone does not explain generalisation \cite{zhang2021rethinking}. Rolnick et al.\ argue that deep learning can be surprisingly robust to massive label noise in some settings \cite{rolnick2017robust}, which is a useful reminder that noise tolerance depends on the data and the architecture. Natarajan et al.\ study risk minimisation with noisy labels and provide the theoretical basis for noise-tolerant losses \cite{natarajan2013learning}. Fr\'enay and Verleysen provide an early comprehensive survey of classification under label noise and describe classical remedies \cite{frenay2014classification}. Huber's robust estimation framework provides the statistical background for treating outliers as extreme observations that should not dominate a fit \cite{huber1964robust}.
+
+The datasets used in this project are also documented in the literature. The Breast Cancer Wisconsin dataset originates from the work of Wolberg and Mangasarian and Street et al.\ on breast cytology \cite{wolberg1990multisurface,street1993nuclear}. Both datasets are distributed through the UCI Machine Learning Repository and are available in scikit-learn \cite{dua2017uci,pedregosa2011scikit}. The classical models are described in standard texts and original papers \cite{hastie2009elements,cortes1995support,quinlan1986induction,breiman2001random}.
+
+\subsection{Comparative Synthesis}
+
+Table~\ref{tab:litcompare} compares the four core papers with the present work. The comparison focuses on the problem addressed, the noise types studied, the experimental setting, the main finding, and the limitation that motivates this project.
+
+\begin{table}[H]
+\centering
+\caption{Comparison of the core reviewed papers with the present work.}
+\label{tab:litcompare}
+\footnotesize
+\begin{tabular}{p{1.5cm}p{2.0cm}p{1.6cm}p{2.0cm}p{2.5cm}p{2.5cm}}
+\toprule
+\textbf{Study} & \textbf{Problem} & \textbf{Noise types} & \textbf{Models and data} & \textbf{Main finding} & \textbf{Limitation for this project} \\
+\midrule
+Song et al.\ \cite{song2023survey} (2023) &
+Robust deep learning under label noise &
+Label noise (feature noise outside scope) &
+62 DNN methods; image benchmarks &
+Five-family taxonomy; no method satisfies all six properties; regularisation alone is insufficient &
+Deep-learning focus; no breaking point; no systematic compound-noise sweep \\
+Zhang et al.\ \cite{zhang2020hybrid} (2020) &
+Hybrid noise in multilabel learning &
+Feature noise and label noise together &
+Multilabel learning framework &
+Feature and label noise should be handled jointly &
+Multilabel setting; no severity sweep; no classical tabular benchmark \\
+Zeng et al.\ \cite{zeng2025feature} (2025) &
+Feature noise as a robustness mechanism under label noise &
+Label noise and Gaussian feature noise &
+LeNet-5, ResNet-50, GCN; MNIST, Fashion-MNIST, miniImageNet, ADNI &
+Gaussian feature noise tightens the PAC-Bayes bound and improves accuracy, especially at high label noise &
+Deep learning; feature noise used for mitigation, not as a corruption to quantify; no 15-combination analysis \\
+Chen \cite{chen2023compound} (2023) &
+Robust learning under compound noise &
+Outliers and noisy labels &
+Semi-supervised deep generative model &
+Compound noise requires dedicated robust modelling &
+Deep generative setting; no systematic subset comparison; no breaking point \\
+\textbf{This work} (2026) &
+Breaking points under individual and compound noise &
+Label, Gaussian, outliers, missing; all 15 combinations &
+Logistic Regression, SVM-RBF, Decision Tree, Random Forest; Breast Cancer, Digits &
+Systematic breaking-point and synergy mapping for classical tabular models &
+Limited to two tabular datasets and four classical models \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Table~\ref{tab:existsvsnew} separates what is already established in the literature from what this project adds.
+
+\begin{table}[H]
+\centering
+\caption{Established knowledge versus the contribution of this project.}
+\label{tab:existsvsnew}
+\small
+\begin{tabular}{p{2.8cm}p{5.2cm}p{5.2cm}}
+\toprule
+\textbf{Aspect} & \textbf{Established in the literature} & \textbf{Added by this project} \\
+\midrule
+Noise types &
+Label noise is the dominant focus; feature noise is often studied as augmentation; compound noise is studied in selected settings &
+All fifteen non-empty combinations of four corruption types are evaluated in one protocol \\
+Models &
+Deep networks dominate; classical models are less systematically studied &
+Four fixed classical tabular models are compared under identical conditions \\
+Severity &
+One or a few noise rates are typically reported &
+Five calibrated severity levels plus a clean baseline are swept \\
+Outcome &
+Accuracy or F1 at selected rates &
+Breaking point at 90\% of the clean baseline, plus BPI and RS \\
+Compound effect &
+Often assumed additive or discussed qualitatively &
+Synergy is computed explicitly as the compound drop minus the sum of single drops \\
+Reproducibility &
+Protocols vary across papers &
+Frozen levels, configuration hash, ten seeds, 6,080 fits, manifests, and checksums \\
+Data &
+Image and graph benchmarks dominate &
+One binary and one multiclass tabular dataset are used \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Research Gap}
+
+The reviewed literature establishes several important facts. Label noise harms generalisation, and many methods have been proposed to mitigate it \cite{song2023survey}. Feature noise can interact with label noise in non-obvious ways and can even improve robustness under some conditions \cite{zeng2025feature}. Hybrid and compound noise are recognised as realistic and difficult settings \cite{zhang2020hybrid,chen2023compound}. Classical models remain widely used on tabular data, but they are not inherently robust to corrupted labels \cite{frenay2014classification,song2023survey}.
+
+At the same time, the literature leaves several gaps that are relevant to applied tabular machine learning.
+
+\begin{enumerate}
+  \item \textbf{Deep-learning bias.} The most comprehensive robustness studies focus on deep neural networks and image or graph benchmarks. Classical models on tabular data are underrepresented, even though they are common in medical, financial, and administrative applications.
+  \item \textbf{Single-corruption bias.} Most studies examine label noise alone or feature noise alone. Compound noise is studied in selected settings, but there is no common protocol that enumerates all subsets of corruption types.
+  \item \textbf{Limited severity sweep.} Robustness is usually reported at one or two noise rates. This makes it difficult to identify the point at which a model stops being useful.
+  \item \textbf{No standard breaking-point measure.} The literature reports average accuracy or F1, but it does not define a model-specific failure threshold that can be compared across noise combinations.
+  \item \textbf{Inconsistent evaluation protocols.} Datasets, splits, architectures, noise models, and metrics differ across papers, which limits direct comparison.
+  \item \textbf{Weak treatment of synergy.} The combined effect of multiple noise types is often assumed to be additive or is discussed qualitatively, without an explicit decomposition into single-noise and interaction components.
+\end{enumerate}
+
+To the best of our knowledge, the reviewed literature does not report a single reproducible protocol that (i) enumerates all fifteen non-empty combinations of label noise, Gaussian feature noise, outliers, and missing values, (ii) sweeps five severity levels, (iii) evaluates four classical tabular models on both a binary and a multiclass dataset, and (iv) reports breaking points, aggregate robustness measures, and an explicit synergy analysis. This is the gap addressed by the present project.
+
+The project does not claim to propose a new mitigation algorithm. Its contribution is a measurement framework and an empirical map. The framework makes the following aspects explicit and auditable:
+
+\begin{itemize}
+  \item the exact noise injectors and their parameters;
+  \item the order in which compound noise is applied;
+  \item the split and seed protocol;
+  \item the definition of the breaking point;
+  \item the aggregate robustness measures;
+  \item the decomposition of compound effects into single-noise and interaction components;
+  \item the provenance of every result row and the checksums of the final artefacts.
+\end{itemize}
+
+This positioning is important. The literature already provides strong evidence that noise harms models and that mitigation is possible. What it does not provide, in a single comparable protocol, is a map of \emph{where} classical tabular models break under individual and compound corruption. That map is the contribution of this project.
+
+\section{Summary}
+
+This chapter reviewed the main families of work on noisy data and model robustness. Label-noise research provides a mature taxonomy of robust architectures, regularisation methods, robust losses, loss adjustment, and sample selection \cite{song2023survey}. Feature-noise research shows that input corruption can interact with label corruption and can even improve generalisation in deep networks \cite{zeng2025feature}. Hybrid and compound-noise research shows that multiple corruption types must be considered together \cite{zhang2020hybrid,chen2023compound}. Classical robust learning provides the statistical and algorithmic background for handling outliers and noisy labels \cite{frenay2014classification,huber1964robust}.
+
+The review also identified a clear gap: there is no systematic, reproducible, breaking-point-oriented comparison of classical tabular models under all combinations of label noise, Gaussian feature noise, outliers, and missing values. The next chapter describes the methodology designed to fill that gap.

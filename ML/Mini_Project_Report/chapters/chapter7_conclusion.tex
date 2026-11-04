@@ -1,0 +1,53 @@
+\chapter{Conclusion and Future Scope}
+
+\section{Conclusion}
+
+This project set out to map the breaking point of classical machine learning models under individual and compound training-data noise. The work was motivated by a gap in the literature: robustness is usually studied one corruption type at a time, often with deep networks and a small number of noise rates, while many practical tabular problems are solved with classical models under several simultaneous data-quality problems.
+
+The project addressed the gap with a reproducible experiment framework. Two public tabular datasets, four fixed classical classifiers, four deterministic noise injectors, all fifteen non-empty noise combinations, and five severity levels were evaluated. The official Full run contains 6,080 fits over ten seeds, with a stratified 70/30 split, a clean test set, and a frozen methodology. A breaking point was defined as the first level at which mean Macro F1 falls to 90\% or less of the clean baseline, and two aggregate measures, BPI and RS, were used to rank the models. A secondary synergy analysis decomposed the compound effect into single-noise and interaction components.
+
+The main findings are as follows.
+
+\begin{itemize}
+  \item Label noise is the most damaging single corruption, with a mean breaking level of 4.375 and a mean level-5 Macro F1 drop of 0.1808. Gaussian noise is second, followed by missing values and outliers.
+  \item Compound noise is consistently more harmful than individual noise. The mean breaking level falls from 5.281 for single noise to 4.729 for pairs, 4.219 for triples, and 3.750 for the four-way combination.
+  \item The multiclass Digits dataset is more fragile than the binary Breast Cancer dataset. Its mean compound breaking level is 3.864 versus 5.045, and its four-way breaking level is 2.750 versus 4.750.
+  \item The Decision Tree is the least robust model on both datasets, with a mean BPI of 3.533 and a mean RS of 0.8207. Random Forest has the highest mean BPI (5.100), and Logistic Regression has the highest mean RS (0.9423).
+  \item Synergy is usually negative: only 124 of 440 compound cells are worse than additive. Super-additive interactions do occur, most notably for Random Forest on Digits with the four-way combination at level 5.
+\end{itemize}
+
+The project also delivered a working software artefact: a Python experiment engine, a FastAPI service, a React visualization application, and a provenance and checksum mechanism that makes the official results auditable. The objectives stated in Chapter~1 were therefore met. The project did not propose a new mitigation algorithm; its contribution is a measurement framework and an empirical map that complements the existing deep-learning literature \cite{song2023survey,zeng2025feature,zhang2020hybrid,chen2023compound}.
+
+\section{Limitations}
+
+The conclusions should be read in the light of the following limitations.
+
+\begin{itemize}
+  \item \textbf{Limited dataset coverage.} Only two small tabular datasets were used. The results may not extend to larger, higher-dimensional, imbalanced, or domain-specific data.
+  \item \textbf{Classical models only.} The study covers four classical classifiers with fixed hyperparameters. Deep networks, gradient boosting, and tuned models may behave differently.
+  \item \textbf{Synthetic and symmetric noise.} The noise injectors are controlled and deterministic. Real corruption is often instance-dependent, class-dependent, and correlated across features.
+  \item \textbf{Threshold sensitivity.} The breaking point depends on the 90\% threshold. A different threshold would change the absolute breaking levels, although the main ordering is likely to remain.
+  \item \textbf{Level calibration.} Equal severity levels are not equally harmful across noise types. The calibrated level table is a deliberate simplification, and a different table could shift the absolute results.
+  \item \textbf{Descriptive analysis.} The results are summarised with means and standard deviations over ten seeds, but no formal hypothesis tests or confidence intervals are reported for the ranking differences.
+  \item \textbf{No mitigation.} The project measures degradation rather than the effectiveness of cleaning, robust losses, or sample selection.
+  \item \textbf{Clean test set.} The test set is clean by design, so the study does not measure the effect of corrupted data at inference time.
+\end{itemize}
+
+\section{Future Scope}
+
+Several extensions would strengthen the work.
+
+\begin{enumerate}
+  \item \textbf{Deep and ensemble models.} Repeat the protocol with multilayer perceptrons, gradient-boosted trees, and other ensemble methods to test whether the breaking-point ordering is model-family dependent.
+  \item \textbf{Additional datasets.} Add larger, imbalanced, and domain-specific tabular datasets, including medical, financial, and sensor data, to test the generality of the findings.
+  \item \textbf{Real-world noise.} Replace or supplement synthetic noise with instance-dependent and class-dependent noise estimated from real annotation processes.
+  \item \textbf{Additional noise types.} Study irrelevant features, duplicated features, feature scaling errors, and correlated missingness.
+  \item \textbf{Mitigation experiments.} Apply robust losses, sample selection, cleaning, and imputation strategies at each severity level and measure how much they shift the breaking point.
+  \item \textbf{Statistical inference.} Add confidence intervals, paired tests, and effect sizes for the model rankings and the synergy estimates.
+  \item \textbf{Adaptive severity calibration.} Calibrate levels separately for each noise type so that equal levels correspond to comparable measured harm.
+  \item \textbf{Deployment hardening.} Add authentication, role-based access control, HTTPS, rate limiting, and audit logging before exposing the API beyond a local environment.
+\end{enumerate}
+
+\section{Final Remarks}
+
+The phrase ``death by a thousand cuts'' is a useful description of compound data corruption. A single small defect may be tolerable, but several defects together can push a model past its breaking point. This project provides a reproducible way to locate that point for classical tabular models and shows that the combined effect is usually, but not always, less than additive. The framework, the frozen results, and the interactive application provide a foundation for further work on data quality and model robustness.

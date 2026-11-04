@@ -1,0 +1,222 @@
+\chapter{Implementation}
+
+\section{Development Environment}
+
+The backend was developed with Python 3.11.9 and the pinned dependencies listed in Chapter~3. The scientific stack is NumPy, pandas, SciPy, and scikit-learn; FastAPI and Uvicorn provide the service layer; Pydantic provides request and response schemas; pytest provides the test suite. The frontend was developed with React, Vite, and TypeScript in strict mode, with Tailwind CSS, shadcn/ui, Lucide icons, Recharts, React Router, and TanStack Query.
+
+The official Full experiment ran on a Windows workstation without a GPU. The run manifest records the Python version, the operating system, the package versions, the Git commit, the frozen configuration hash, the dataset metadata, the model parameters, the seed list, the planned and completed fit counts, and the split hashes for every dataset and seed. This information is sufficient to reconstruct the experimental environment and to verify that a later run used the same methodology.
+
+\section{Module Implementation}
+
+\subsection{Data Module}
+
+The data module loads Breast Cancer and Digits from scikit-learn. It creates a stratified 70/30 split for each $(dataset, seed)$ and returns the clean training and test arrays. It also computes a SHA-256 hash of the training and test indices, which is stored in the manifest. The split is created once and reused for every model, noise type, and combination for that dataset and seed, which is what makes the comparisons paired.
+
+\subsection{Levels and Hashing Module}
+
+The levels module loads the severity table from a JSON configuration file. It validates that the table has the expected keys and that every level vector has six entries (levels 0--5). It exposes the active table and the frozen state. The hashing module computes a canonical JSON representation of the methodology constants, the active level table, the noise order, and the model parameters, and hashes it with SHA-256. The resulting configuration hash is written to every result row and to the manifest. Stage 2, Full, and official resume operations recompute the hash and refuse to run if it does not match the frozen value.
+
+\subsection{Noise Module}
+
+The noise module implements the four injectors. Each injector receives the training features, the training labels, the level value, and a random generator. The generators are created from the seed sequence shown in Chapter~3. Listing~\ref{lst:rng} shows the construction and the identifier mapping.
+
+\begin{lstlisting}[language=Python, caption={Deterministic random generation and noise identifiers.}, label={lst:rng}]
+NOISE_IDS = {"label": 1, "gaussian": 2, "outliers": 3, "missing": 4}
+
+def make_rng(seed, noise_name, level):
+    return np.random.default_rng(
+        np.random.SeedSequence([seed, NOISE_IDS[noise_name], level])
+    )
+\end{lstlisting}
+
+The label injector flips a fixed number of labels without replacement and always selects a different class. The Gaussian injector scales the standard normal draw by the clean per-column standard deviation and the level factor, and leaves zero-standard-deviation columns unchanged. The outlier injector selects eligible cells and replaces them with a value five standard deviations above or below the column mean. The missing injector sets a Bernoulli-selected subset of cells to NaN.
+
+The compound function applies the injectors in the canonical order:
+\begin{center}
+\texttt{label} $\rightarrow$ \texttt{gaussian} $\rightarrow$ \texttt{outliers} $\rightarrow$ \texttt{missing}.
+\end{center}
+The same random generator construction is used for a single noise and for the corresponding component inside a compound, which ensures that the single-noise and compound experiments share the same noise realisation.
+
+\subsection{Pipeline Module}
+
+The pipeline module builds a fresh scikit-learn pipeline for each fit. Listing~\ref{lst:pipeline} shows the structure. The imputer uses mean strategy and keeps empty features so that an entirely missing column does not cause a shape error. The scaler standardises the imputed features. The classifier is one of the four fixed models.
+
+\begin{lstlisting}[language=Python, caption={Preprocessing and classification pipeline.}, label={lst:pipeline}]
+from sklearn.impute import SimpleImputer
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
+
+def build_pipeline(model):
+    return Pipeline([
+        ("imputer", SimpleImputer(strategy="mean", keep_empty_features=True)),
+        ("scaler", StandardScaler()),
+        ("model", model),
+    ])
+\end{lstlisting}
+
+The pipeline is fitted on the training split that is passed to it. At level 0 this is the clean training split; at levels 1--5 it is the corrupted training split. The imputer and scaler therefore learn their statistics from the same data that the classifier sees. No step is fitted on the test set.
+
+\subsection{Metrics Module}
+
+The metrics module computes Macro F1 with \texttt{f1\_score(}\allowbreak\texttt{average="macro",}\allowbreak\texttt{zero\_division=0)} and Accuracy with \texttt{accuracy\_score}. It returns both values together with the fit time. The sample standard deviation in the analysis layer uses \texttt{ddof=1}. Missing predictions or a class with no predicted samples are handled by the zero-division policy rather than by dropping classes.
+
+\subsection{Runner Module}
+
+The runner builds the fit plan for a stage and executes it. A fit plan is a list of fit specifications, each containing the dataset, model, seed, combination, number of noise types, and level. The runner supports resume by reading the completed keys from the raw results file and skipping them. It supports cancellation by checking a flag between fits. Error rows are written with a non-ok status and an error message; they are never removed.
+
+The runner also enforces the frozen configuration guard. Before Stage 2, Full, or an official resume operation, it verifies that the stored configuration hash matches the frozen hash. If the check fails, execution is refused.
+
+\subsection{Analysis Module}
+
+The analysis module reads the raw rows and produces the five derived files. It computes the clean baseline for each dataset and model, the 90\% threshold, the mean and standard deviation by level, the breaking point, the BPI and RS rankings, and the synergy decomposition. The breaking-point computation is shown in Listing~\ref{lst:bp}.
+
+\begin{lstlisting}[language=Python, caption={Breaking-point computation for one dataset, model, and combination.}, label={lst:bp}]
+def breaking_point(mean_f1_by_level, baseline_f1, break_ratio=0.90):
+    threshold = break_ratio * baseline_f1
+    for level in range(1, 6):
+        if mean_f1_by_level[level] <= threshold:
+            return level
+    return None  # not reached
+\end{lstlisting}
+
+The function is applied after averaging over seeds. The analysis records whether the breaking point was reached, the F1 at the breaking point, and the number of seeds that were individually below the threshold at that level. This last value distinguishes a consistent failure from a failure driven by one or two seeds.
+
+\subsection{Storage Module}
+
+The storage module defines safe result paths and prevents writes outside the results root. It provides CSV append and read operations and atomic JSON writes. Atomic JSON writes use a temporary file followed by \texttt{os.replace}, which prevents a partially written manifest or job file from being observed. CSV rows are flushed after each fit so that a crash does not lose completed work. The results root can be overridden with the \texttt{RESULTS\_ROOT} environment variable, which allows tests to run against a temporary directory without touching the real results.
+
+\subsection{Figures Module}
+
+The figures module uses matplotlib to generate the official figures from the derived CSVs. It produces F1-versus-level and accuracy-versus-level panels for each single noise, breaking-level heatmaps, a breaking-points table image, and synergy bar charts. The figures use the same model colours and line styles as the frontend so that the report and the application are visually consistent.
+
+\subsection{API Module}
+
+The API module is a FastAPI application with routes for health, configuration, overview statistics, curves, model comparison, breaking points, heatmaps, synergy, experiment listing, experiment detail, experiment creation, cancellation, estimation, and result retrieval. Route handlers validate inputs, call the results reader, and return Pydantic response models. They do not contain machine learning or analysis logic.
+
+\subsection{Worker Module}
+
+The worker is a separate process started with \texttt{python -m app.jobs.worker}. It reads the job queue, executes one custom job at a time, writes progress to the job file, and maintains a heartbeat. Stale running jobs are marked as failed when the worker starts. Cancellation is cooperative and is checked between fits. Partial rows from a cancelled job are preserved and the job ends with the cancelled status.
+
+\subsection{Frontend Module}
+
+The frontend is organised into route-level pages, page-specific feature modules, shared UI components, chart components, hooks, and a typed API client. TanStack Query owns server-state fetching and polling. Polling runs only while a custom job is queued or running. The UI distinguishes official and custom results, shows a provisional banner when the levels are not frozen, and provides loading, empty, and error states for every data view. Colour is never the only carrier of meaning: models also have distinct line styles and markers, and noise types have labels and icons.
+
+\section{User Interface}
+
+The application has six pages. Table~\ref{tab:pages} summarises their purpose.
+
+\begin{table}[H]
+\centering
+\caption{Application pages.}
+\label{tab:pages}
+\footnotesize
+\begin{tabular}{p{2.2cm}p{3.2cm}p{7.8cm}}
+\toprule
+\textbf{Page} & \textbf{Route} & \textbf{Purpose} \\
+\midrule
+Overview & \texttt{/} & Key statistics, robustness ranking, and a short explanation of the experiment \\
+Experiment Setup & \texttt{/setup} & Configure a custom experiment, estimate the fit count and runtime, and start it \\
+Results Dashboard & \texttt{/results/\allowbreak\{runId\}} & Filterable metrics, level table, and F1-versus-level chart for a run \\
+Visualizations & \texttt{/visualizations} & F1 and accuracy curves, model comparison, heatmap, breaking points, and synergy \\
+Model Comparison & \texttt{/compare} & Ranking table, robustness highlight, and overlay curves \\
+Experiment Details & \texttt{/experiments} and \texttt{/experiments/\allowbreak\{id\}} & Run list, status timeline, configuration, provenance, and manifest download \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The overview page presents the central result in a compact form: the number of datasets, models, noise types, combinations, total fits, and seeds, followed by the robustness ranking. The results dashboard and the visualizations page provide the detailed evidence. The experiment details page exposes the provenance information that makes the result auditable, including the configuration hash, methodology version, levels version, frozen status, and library versions.
+
+Screenshots of the interface can be added to the report by placing the image files in the \texttt{figures/project\_figures/} directory and including them with the \texttt{figure} environment described in the report README.
+
+\section{Algorithm Implementation}
+
+\subsection{Noise Injection and Fitting}
+
+The complete per-fit algorithm is summarised below.
+
+\begin{enumerate}
+  \item Receive the dataset, model, seed, combination, and level.
+  \item Load or reuse the stratified split for $(dataset, seed)$.
+  \item Copy the clean training features and labels so that the original arrays are not modified.
+  \item If the level is 0, fit the pipeline on the clean training split.
+  \item Otherwise, for each noise type in the combination, create the generator from $(seed, noise\_id, level)$ and apply the injector to the training data in the canonical order.
+  \item Fit the pipeline on the corrupted training data.
+  \item Predict the clean test set.
+  \item Compute Macro F1, Accuracy, and the fit time.
+  \item Record the noise statistics and provenance fields.
+  \item Append the row to the raw results file and flush it.
+\end{enumerate}
+
+The algorithm is deterministic: the same dataset, model, noise combination, level, and seed produce the same split, the same noise realisation, the same fitted pipeline, and the same metrics. This property was verified by re-running a subset of the Full experiment and comparing the results exactly.
+
+\subsection{Analysis}
+
+The analysis algorithm is:
+
+\begin{enumerate}
+  \item Read the raw rows for the run.
+  \item Compute the clean baseline and threshold for each dataset and model.
+  \item Group the noisy rows by dataset, model, combination, and level, and compute the mean and sample standard deviation over seeds.
+  \item For each dataset, model, and combination, scan levels 1--5 and record the first level at or below the threshold.
+  \item Compute BPI and RS for the singles and all scopes, and rank the models.
+  \item For each compound combination and level, compute the compound drop, the sum of single drops, and the synergy.
+  \item Write the derived CSV files and generate the figures.
+\end{enumerate}
+
+The analysis is a pure function of the raw rows and the methodology constants. It does not read the test set, does not retrain models, and does not depend on the frontend.
+
+\section{Integration}
+
+The API and worker integrate the engine with the frontend. Table~\ref{tab:api} lists the main endpoints.
+
+\begin{table}[H]
+\centering
+\caption{Main API endpoints.}
+\label{tab:api}
+\footnotesize
+\begin{tabular}{p{1.4cm}p{5.4cm}p{6.4cm}}
+\toprule
+\textbf{Method} & \textbf{Endpoint} & \textbf{Purpose} \\
+\midrule
+GET & \texttt{/api/health} & Server and worker status \\
+GET & \texttt{/api/config} & Datasets, models, noise types, levels, frozen state, and available stages \\
+GET & \texttt{/api/overview} & Key statistics and robustness ranking \\
+POST & \texttt{/api/experiments} & Start a custom run; returns HTTP 202 \\
+GET & \texttt{/api/experiments} & List official and custom runs \\
+GET & \texttt{/api/experiments/\allowbreak\{id\}} & Status, progress, and manifest summary \\
+POST & \texttt{/api/experiments/\allowbreak\{id\}/\allowbreak cancel} & Request cancellation of a custom job \\
+GET & \texttt{/api/experiments/\allowbreak\{id\}/\allowbreak results} & Results for a selected run \\
+POST & \texttt{/api/experiments/estimate} & Estimate the fit count and runtime of a custom request \\
+GET & \texttt{/api/results/curves} & F1 and accuracy versus level \\
+GET & \texttt{/api/results/models} & Model comparison and ranking \\
+GET & \texttt{/api/\allowbreak results/\allowbreak breaking-points} & Breaking-point table \\
+GET & \texttt{/api/results/heatmap} & Model-by-combination breaking-level or retained-F1 grid \\
+GET & \texttt{/api/results/synergy} & Synergy analysis for compound combinations \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+For official data, the default stage preference is Full, then Stage 2, then MVP, when no explicit stage is supplied. All endpoints accept optional filters for dataset, model, combination, level, source, stage, and custom run identifier. Errors use a consistent JSON shape with an error code, message, and details. Validation errors return HTTP 422, missing resources return 404, conflicts return 409, and a full queue returns 429.
+
+The integration test for custom experiments starts a small run through the API, monitors it through the worker, and verifies that the official Full results are unchanged. This test is important because it demonstrates the isolation between the official and custom result roots.
+
+\section{Security and Privacy}
+
+The project is designed as a local, single-user research tool. It does not process personal data. The two datasets are public benchmark datasets, and no user accounts, credentials, or personal information are stored. The API is bound to a local development origin, and CORS is restricted to the frontend development origin.
+
+The main security considerations are integrity and isolation rather than confidentiality.
+
+\begin{itemize}
+  \item \textbf{Input validation.} Dataset names, model identifiers, noise identifiers, modes, levels, and seed counts are validated against fixed lists and ranges before a job is created.
+  \item \textbf{Path safety.} Result paths are constructed from known roots and run identifiers. User-provided names are not used directly as filesystem paths.
+  \item \textbf{Official-result protection.} Official runs are started only from the command line. The API has no route that can modify or delete official results. After the final reproducibility check, the official Full directory is locked and its checksums are recorded.
+  \item \textbf{Atomic writes.} JSON files are written through a temporary file and an atomic replace, which prevents corrupted manifests or job files.
+  \item \textbf{Provenance.} Every result row and manifest records the configuration hash, methodology version, levels version, frozen state, and library versions, which makes tampering or accidental methodology drift visible.
+  \item \textbf{No arbitrary code execution.} The API accepts only structured experiment parameters. It does not accept code, file paths, or shell commands from the client.
+\end{itemize}
+
+Authentication and authorisation are out of scope for the local version. If the application is deployed on a shared network, the following changes would be required before exposure: authentication, role-based access control, HTTPS, rate limiting, request logging, a restrictive CORS policy, and a review of the worker's filesystem permissions.
+
+\section{Summary}
+
+This chapter described how the methodology is implemented. The engine is modular, deterministic, and testable in isolation. The API exposes read-only results and a controlled custom-experiment workflow. The worker executes custom jobs separately, and the official results are protected by a frozen configuration, atomic writes, and checksums. The frontend presents the results without duplicating any machine learning or analysis logic. The next chapter reports the experimental results obtained from the frozen official Full run.
