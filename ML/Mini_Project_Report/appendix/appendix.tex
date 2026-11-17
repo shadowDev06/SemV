@@ -1,75 +1,31 @@
 \chapter{Appendix}
-
-This appendix presents the academic, research, innovation, and project-related contributions associated with the mini project. Only the sections relevant to this project are retained.
-
-% =========================================================
-% A. OPEN SOURCE CONTRIBUTION
-% =========================================================
+This appendix presents the open-source contribution and the Sustainable Development Goals associated with the project.
 
 \section{Open Source Contribution}
-
-The team did not contribute to an external open-source project during this mini project. The project's own engine, API, frontend, tests, and documentation are the primary software artefacts, and they are maintained in a Git repository. The intention is to publish the repository after the academic submission so that the benchmark can be reused and extended.
-
-\begin{itemize}
-    \item Project / Repository: Death by a Thousand Cuts (course project repository)
-    \item Platform: Git (local repository; public hosting to be added after submission)
-    \item Student Contributor(s): The project team
-    \item Nature of Contribution: Reproducible experiment engine for compound-noise benchmarking, FastAPI results service, React visualization application, automated tests, and technical documentation
-    \item Pull Request / Issue Number: Not applicable
-    \item Repository URL: To be added after publication
+\begin{itemize}[nosep]
+\item \textbf{Project / Repository:} Lastbook
+\item \textbf{Platform:} GitHub
+\item \textbf{Student contributors:} Rushikesh Tathe, Nihar Gudekar, and Mohammad Ali Sayyed
+\item \textbf{Nature of contribution:} Added a video playback-speed selector with options from 0.5$\times$ to 2$\times$, synchronised with the video. The change was tested in Microsoft Edge and with the project test suite.
+\item \textbf{Pull request:} \#132, submitted and awaiting review.
+\item \textbf{Repository:} \textcolor{blue}{\url{https://github.com/Immortal-Protocols/lastbook}}
+\item \textbf{Pull request link:} \textcolor{blue}{\url{https://github.com/Immortal-Protocols/lastbook/pull/132}}
 \end{itemize}
-
 \subsection{Evidence}
-
-The repository contains the Python experiment engine, the API and worker, the React frontend, the test suite, the frozen level configuration, the run manifest, and the checksum file for the locked official results. The manifest and checksum file provide evidence of the reproducibility and integrity of the reported experiment.
-
-% =========================================================
-% D. DATA CONTRIBUTION
-% =========================================================
-
-\section{Data Contribution}
-
-The project did not create a new raw dataset. It contributes a derived benchmark: a reproducible corruption protocol and a set of 6,080 official result rows that record the behaviour of four classical models on two public tabular datasets under all fifteen non-empty combinations of four noise types and five severity levels. The benchmark is designed to be reusable by other students and researchers who want to study data quality and model robustness.
-
-\begin{itemize}
-    \item Dataset Name: Death by a Thousand Cuts compound-noise benchmark
-    \item Dataset Description: Derived benchmark of 6,080 fits covering 2 datasets, 4 models, 15 noise combinations, 6 levels (including clean), and 10 seeds, with breaking-point, robustness, and synergy summaries
-    \item Source: Breast Cancer Wisconsin dataset and Digits dataset, both public and available through the UCI Machine Learning Repository and scikit-learn
-    \item Number of Records / Samples: 569 raw samples for Breast Cancer and 1,797 raw samples for Digits; 6,080 result rows in the official Full run
-    \item Data Collection Method: No new data collection; controlled, deterministic corruption of the public training splits
-    \item Annotation / Preprocessing Performed: Stratified 70/30 split, deterministic label and feature noise injection, mean imputation and standardisation inside the model pipeline, and clean-test evaluation
-    \item Dataset Repository / URL: To be added after publication
-\end{itemize}
-
-\subsection{Evidence}
-
-The evidence consists of the raw results file, the five derived analysis files, the run manifest, the frozen level configuration, the validation report, and the SHA-256 checksum file. The manifest records the dataset metadata, split hashes, model parameters, seeds, package versions, and configuration hash. The checksum file records the integrity of the locked official Full artefacts.
-
-% =========================================================
-% H. SDG GOALS ACHIEVED
-% =========================================================
-
+The following screenshots show the contribution branch and its commit history.
+\begin{figure}[H]
+\centering\includegraphics[width=0.96\textwidth,height=0.37\textheight,keepaspectratio]{figures/lastbook_pr.png}
+\caption{Lastbook playback-speed contribution branch}
+\end{figure}
+\begin{figure}[H]
+\centering\includegraphics[width=0.96\textwidth,height=0.37\textheight,keepaspectratio]{figures/lastbook_commit.png}
+\caption{Commit associated with the contribution}
+\end{figure}
 \section{SDG Goals Achieved}
+The project and open-source contribution indirectly support the following goals:
+\begin{itemize}
+\item \textbf{SDG 3 -- Good Health and Well-being:} Analysing model robustness on a medical dataset encourages attention to data quality in health-related decision support.
+\item \textbf{SDG 4 -- Quality Education:} The reproducible benchmark supports learning about data quality and machine-learning evaluation; adjustable playback speed can help viewers learn at their preferred pace.
+\item \textbf{SDG 9 -- Industry, Innovation and Infrastructure:} Reproducible experiment tooling and the open-source software contribution support accessible, reusable digital infrastructure.
+\end{itemize}
 
-The project contributes indirectly to three Sustainable Development Goals. It does not claim direct social impact; the mapping reflects the areas in which reliable machine learning supports broader development goals.
-
-\begin{table}[H]
-\centering
-\caption{SDG Goals Addressed by the Project}
-\label{tab:sdg}
-\small
-\begin{tabular}{p{1.2cm} p{3.2cm} p{8.8cm}}
-\toprule
-\textbf{SDG} & \textbf{Goal} & \textbf{Contribution of the Project} \\
-\midrule
-SDG 3 & Good Health and Well-being &
-The project studies the robustness of classical models on a medical tabular dataset. Understanding when a classifier fails under noisy or incomplete data supports the development of more reliable decision-support tools and encourages data-quality checks before clinical or health-related use. \\
-SDG 4 & Quality Education &
-The project provides a transparent, reproducible teaching benchmark for data quality, model evaluation, and reproducibility. The code, methodology, and frozen results can be used in courses and student projects on machine learning. \\
-SDG 9 & Industry, Innovation and Infrastructure &
-The project demonstrates a reproducible experiment infrastructure with provenance, configuration hashing, and result locking. These practices support trustworthy machine-learning pipelines and reliable data-driven infrastructure. \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-The other SDGs are not directly addressed by the project and are therefore omitted.

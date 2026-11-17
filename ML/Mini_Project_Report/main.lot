@@ -1,0 +1,25 @@
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {3.1}{\ignorespaces Principal software components and versions used for the official run.\relax }}{11}{table.caption.8}%
+\contentsline {table}{\numberline {3.2}{\ignorespaces Fixed classifier configurations.\relax }}{13}{table.caption.9}%
+\contentsline {table}{\numberline {3.3}{\ignorespaces Noise injectors and their parameters.\relax }}{15}{table.caption.14}%
+\contentsline {table}{\numberline {3.4}{\ignorespaces Datasets used in the experiment.\relax }}{15}{table.caption.15}%
+\contentsline {table}{\numberline {3.5}{\ignorespaces Frozen severity levels (active table A).\relax }}{16}{table.caption.16}%
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {4.1}{\ignorespaces Actors and use cases.\relax }}{23}{table.caption.18}%
+\contentsline {table}{\numberline {4.2}{\ignorespaces Main groups of fields in the raw results file.\relax }}{25}{table.caption.19}%
+\contentsline {table}{\numberline {4.3}{\ignorespaces Derived analysis files.\relax }}{25}{table.caption.20}%
+\contentsline {table}{\numberline {4.4}{\ignorespaces Module responsibilities.\relax }}{26}{table.caption.21}%
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {5.1}{\ignorespaces Application pages.\relax }}{31}{table.caption.22}%
+\contentsline {table}{\numberline {5.2}{\ignorespaces Main API endpoints.\relax }}{33}{table.caption.23}%
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {6.1}{\ignorespaces Official run plans and measured runtimes.\relax }}{36}{table.caption.24}%
+\contentsline {table}{\numberline {6.2}{\ignorespaces Clean baselines and breaking thresholds (mean over ten seeds).\relax }}{37}{table.caption.25}%
+\contentsline {table}{\numberline {6.3}{\ignorespaces Breaking levels for the four single-noise combinations (NR = not reached).\relax }}{37}{table.caption.26}%
+\contentsline {table}{\numberline {6.4}{\ignorespaces Mean breaking level by noise-set size (NR = 6).\relax }}{38}{table.caption.27}%
+\contentsline {table}{\numberline {6.5}{\ignorespaces Mean breaking level for selected combinations (NR = 6).\relax }}{39}{table.caption.28}%
+\contentsline {table}{\numberline {6.6}{\ignorespaces Robustness ranking by BPI and RS.\relax }}{39}{table.caption.29}%
+\addvspace {10\p@ }
+\addvspace {10\p@ }

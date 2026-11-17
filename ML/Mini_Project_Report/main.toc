@@ -1,0 +1,99 @@
+\contentsline {chapter}{Certificate}{i}{chapter*.1}%
+\contentsline {chapter}{Declaration}{ii}{chapter*.2}%
+\contentsline {chapter}{Acknowledgement}{iii}{chapter*.3}%
+\contentsline {chapter}{Abstract}{iv}{chapter*.4}%
+\contentsline {chapter}{\numberline {1}Introduction}{1}{chapter.1}%
+\contentsline {section}{\numberline {1.1}Background}{1}{section.1.1}%
+\contentsline {section}{\numberline {1.2}Problem Statement}{2}{section.1.2}%
+\contentsline {section}{\numberline {1.3}Motivation}{3}{section.1.3}%
+\contentsline {section}{\numberline {1.4}Objectives}{3}{section.1.4}%
+\contentsline {section}{\numberline {1.5}Scope}{4}{section.1.5}%
+\contentsline {section}{\numberline {1.6}Contributions}{5}{section.1.6}%
+\contentsline {section}{\numberline {1.7}Organization of the Report}{6}{section.1.7}%
+\contentsline {chapter}{\numberline {2}Literature Review}{7}{chapter.2}%
+\contentsline {section}{\numberline {2.1}Introduction}{7}{section.2.1}%
+\contentsline {section}{\numberline {2.2}Existing Systems}{7}{section.2.2}%
+\contentsline {section}{\numberline {2.3}Review of Research Papers}{7}{section.2.3}%
+\contentsline {section}{\numberline {2.4}Research Gap}{8}{section.2.4}%
+\contentsline {section}{\numberline {2.5}Summary}{9}{section.2.5}%
+\contentsline {chapter}{\numberline {3}Proposed Methodology}{10}{chapter.3}%
+\contentsline {section}{\numberline {3.1}Overview}{10}{section.3.1}%
+\contentsline {section}{\numberline {3.2}System Requirements}{10}{section.3.2}%
+\contentsline {subsection}{\numberline {3.2.1}Software Requirements}{10}{subsection.3.2.1}%
+\contentsline {subsection}{\numberline {3.2.2}Hardware Requirements}{11}{subsection.3.2.2}%
+\contentsline {subsection}{\numberline {3.2.3}Storage Requirements}{11}{subsection.3.2.3}%
+\contentsline {section}{\numberline {3.3}Proposed Approach}{11}{section.3.3}%
+\contentsline {section}{\numberline {3.4}Algorithms / Models}{13}{section.3.4}%
+\contentsline {subsection}{\numberline {3.4.1}Classification Models}{13}{subsection.3.4.1}%
+\contentsline {subsection}{\numberline {3.4.2}Preprocessing Pipeline}{13}{subsection.3.4.2}%
+\contentsline {subsection}{\numberline {3.4.3}Noise Injectors}{14}{subsection.3.4.3}%
+\contentsline {paragraph}{Label noise.}{14}{paragraph*.10}%
+\contentsline {paragraph}{Gaussian feature noise.}{14}{paragraph*.11}%
+\contentsline {paragraph}{Outliers.}{14}{paragraph*.12}%
+\contentsline {paragraph}{Missing values.}{14}{paragraph*.13}%
+\contentsline {subsection}{\numberline {3.4.4}Compound Noise}{15}{subsection.3.4.4}%
+\contentsline {section}{\numberline {3.5}Data Collection and Preprocessing}{15}{section.3.5}%
+\contentsline {subsection}{\numberline {3.5.1}Datasets}{15}{subsection.3.5.1}%
+\contentsline {subsection}{\numberline {3.5.2}Preprocessing}{16}{subsection.3.5.2}%
+\contentsline {subsection}{\numberline {3.5.3}Severity Levels}{16}{subsection.3.5.3}%
+\contentsline {section}{\numberline {3.6}Evaluation Metrics}{17}{section.3.6}%
+\contentsline {subsection}{\numberline {3.6.1}Primary and Secondary Metrics}{17}{subsection.3.6.1}%
+\contentsline {subsection}{\numberline {3.6.2}Clean Baseline and Breaking Point}{17}{subsection.3.6.2}%
+\contentsline {subsection}{\numberline {3.6.3}Aggregate Robustness Measures}{18}{subsection.3.6.3}%
+\contentsline {subsection}{\numberline {3.6.4}Synergy}{18}{subsection.3.6.4}%
+\contentsline {section}{\numberline {3.7}Summary}{18}{section.3.7}%
+\contentsline {chapter}{\numberline {4}System Design}{20}{chapter.4}%
+\contentsline {section}{\numberline {4.1}System Architecture}{20}{section.4.1}%
+\contentsline {section}{\numberline {4.2}System Workflow}{21}{section.4.2}%
+\contentsline {subsection}{\numberline {4.2.1}Official Experiment Workflow}{21}{subsection.4.2.1}%
+\contentsline {subsection}{\numberline {4.2.2}Custom Experiment Workflow}{22}{subsection.4.2.2}%
+\contentsline {section}{\numberline {4.3}Use Case Diagram}{22}{section.4.3}%
+\contentsline {section}{\numberline {4.4}Data Flow}{23}{section.4.4}%
+\contentsline {section}{\numberline {4.5}Database Design}{24}{section.4.5}%
+\contentsline {section}{\numberline {4.6}Module Description}{26}{section.4.6}%
+\contentsline {chapter}{\numberline {5}Implementation}{27}{chapter.5}%
+\contentsline {section}{\numberline {5.1}Development Environment}{27}{section.5.1}%
+\contentsline {section}{\numberline {5.2}Module Implementation}{27}{section.5.2}%
+\contentsline {subsection}{\numberline {5.2.1}Data Module}{27}{subsection.5.2.1}%
+\contentsline {subsection}{\numberline {5.2.2}Levels and Hashing Module}{27}{subsection.5.2.2}%
+\contentsline {subsection}{\numberline {5.2.3}Noise Module}{28}{subsection.5.2.3}%
+\contentsline {subsection}{\numberline {5.2.4}Pipeline Module}{28}{subsection.5.2.4}%
+\contentsline {subsection}{\numberline {5.2.5}Metrics Module}{29}{subsection.5.2.5}%
+\contentsline {subsection}{\numberline {5.2.6}Runner Module}{29}{subsection.5.2.6}%
+\contentsline {subsection}{\numberline {5.2.7}Analysis Module}{29}{subsection.5.2.7}%
+\contentsline {subsection}{\numberline {5.2.8}Storage Module}{30}{subsection.5.2.8}%
+\contentsline {subsection}{\numberline {5.2.9}Figures Module}{30}{subsection.5.2.9}%
+\contentsline {subsection}{\numberline {5.2.10}API Module}{30}{subsection.5.2.10}%
+\contentsline {subsection}{\numberline {5.2.11}Worker Module}{31}{subsection.5.2.11}%
+\contentsline {subsection}{\numberline {5.2.12}Frontend Module}{31}{subsection.5.2.12}%
+\contentsline {section}{\numberline {5.3}User Interface}{31}{section.5.3}%
+\contentsline {section}{\numberline {5.4}Algorithm Implementation}{32}{section.5.4}%
+\contentsline {subsection}{\numberline {5.4.1}Noise Injection and Fitting}{32}{subsection.5.4.1}%
+\contentsline {subsection}{\numberline {5.4.2}Analysis}{32}{subsection.5.4.2}%
+\contentsline {section}{\numberline {5.5}Integration}{33}{section.5.5}%
+\contentsline {section}{\numberline {5.6}Security and Privacy}{34}{section.5.6}%
+\contentsline {section}{\numberline {5.7}Summary}{35}{section.5.7}%
+\contentsline {chapter}{\numberline {6}Results and Discussion}{36}{chapter.6}%
+\contentsline {section}{\numberline {6.1}Experimental Setup}{36}{section.6.1}%
+\contentsline {section}{\numberline {6.2}Results}{36}{section.6.2}%
+\contentsline {subsection}{\numberline {6.2.1}Clean Baselines}{36}{subsection.6.2.1}%
+\contentsline {subsection}{\numberline {6.2.2}Breaking Points for Single Noise}{37}{subsection.6.2.2}%
+\contentsline {subsection}{\numberline {6.2.3}Compound-Noise Effects}{38}{subsection.6.2.3}%
+\contentsline {subsection}{\numberline {6.2.4}Robustness Ranking}{39}{subsection.6.2.4}%
+\contentsline {subsection}{\numberline {6.2.5}Synergy Analysis}{40}{subsection.6.2.5}%
+\contentsline {subsection}{\numberline {6.2.6}Figures}{40}{subsection.6.2.6}%
+\contentsline {section}{\numberline {6.3}Performance Analysis}{45}{section.6.3}%
+\contentsline {section}{\numberline {6.4}Discussion}{45}{section.6.4}%
+\contentsline {subsection}{\numberline {6.4.1}Threats to Validity}{45}{subsection.6.4.1}%
+\contentsline {subsection}{\numberline {6.4.2}Implications}{46}{subsection.6.4.2}%
+\contentsline {section}{\numberline {6.5}Summary}{46}{section.6.5}%
+\contentsline {chapter}{\numberline {7}Conclusion and Future Scope}{47}{chapter.7}%
+\contentsline {section}{\numberline {7.1}Conclusion}{47}{section.7.1}%
+\contentsline {section}{\numberline {7.2}Limitations}{48}{section.7.2}%
+\contentsline {section}{\numberline {7.3}Future Scope}{48}{section.7.3}%
+\contentsline {section}{\numberline {7.4}Final Remarks}{49}{section.7.4}%
+\contentsline {chapter}{References}{50}{section.7.4}%
+\contentsline {chapter}{\numberline {A}Appendix}{52}{appendix.A}%
+\contentsline {section}{\numberline {A.1}Open Source Contribution}{52}{section.A.1}%
+\contentsline {subsection}{\numberline {A.1.1}Evidence}{52}{subsection.A.1.1}%
+\contentsline {section}{\numberline {A.2}SDG Goals Achieved}{53}{section.A.2}%

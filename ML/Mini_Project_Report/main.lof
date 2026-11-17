@@ -1,0 +1,17 @@
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {4.1}{\ignorespaces High-level system architecture. Official experiments are started from the command line; custom experiments are queued through the API and executed by a separate worker process.\relax }}{20}{figure.caption.17}%
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {6.1}{\ignorespaces Breast Cancer: Macro F1 versus severity level for the four single-noise combinations. The dotted lines are the 90\% thresholds and the red crosses mark breaking points.\relax }}{41}{figure.caption.30}%
+\contentsline {figure}{\numberline {6.2}{\ignorespaces Digits: Macro F1 versus severity level for the four single-noise combinations. The dotted lines are the 90\% thresholds and the red crosses mark breaking points.\relax }}{42}{figure.caption.31}%
+\contentsline {figure}{\numberline {6.3}{\ignorespaces Breast Cancer: breaking level for every combination and model. Lighter cells fail earlier; 6 means not reached.\relax }}{43}{figure.caption.32}%
+\contentsline {figure}{\numberline {6.4}{\ignorespaces Digits: breaking level for every combination and model. The much lighter cells show earlier failure than on Breast Cancer.\relax }}{43}{figure.caption.33}%
+\contentsline {figure}{\numberline {6.5}{\ignorespaces Breast Cancer: synergy at level 5. Positive values mean that the compound drop exceeds the sum of single-noise drops.\relax }}{44}{figure.caption.34}%
+\contentsline {figure}{\numberline {6.6}{\ignorespaces Digits: synergy at level 5. The largest positive bars occur for high-severity combinations involving label and Gaussian noise.\relax }}{44}{figure.caption.35}%
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {A.1}{\ignorespaces Lastbook playback-speed pull request\relax }}{52}{figure.caption.37}%
+\contentsline {figure}{\numberline {A.2}{\ignorespaces Commit associated with the contribution\relax }}{53}{figure.caption.38}%

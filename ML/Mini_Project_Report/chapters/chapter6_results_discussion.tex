@@ -227,53 +227,7 @@ Figures~\ref{fig:bc-syn} and~\ref{fig:digits-syn} show the level-5 synergy for e
 
 \section{Performance Analysis}
 
-\subsection{Answers to the Research Questions}
-
-\textbf{Q1: Which model is most robust overall?} There is no single winner on every measure. Random Forest has the highest mean BPI across the two datasets (5.100), while Logistic Regression has the highest mean RS (0.9423). On Breast Cancer, Logistic Regression is ranked first in the all-combination scope, and SVM is ranked first in the single-noise scope. On Digits, Random Forest is ranked first in both scopes. The Decision Tree is unambiguously the least robust model: it is last on both datasets, its BPI is 3.533 on average, and its RS is 0.8207. The practical answer therefore depends on the objective. If survival to a higher severity is the priority, Random Forest is the best overall choice. If retained performance across levels is the priority, Logistic Regression is marginally better. Both are preferable to the Decision Tree.
-
-\textbf{Q2: Which noise type hurts most?} Label noise is the most damaging single corruption. Its mean breaking level is 4.375, compared with 5.250 for Gaussian noise, 5.625 for missing values, and 5.875 for outliers. Its mean level-5 Macro F1 drop is 0.1808, compared with 0.1251, 0.0531, and 0.0430 respectively. Label noise is also the only single corruption that breaks every model on Breast Cancer. Gaussian noise is the second most damaging corruption. Outliers and missing values are comparatively benign in isolation, but they can become harmful when combined with label noise or when they interact with other feature corruptions.
-
-\textbf{Q3: What is each model's breaking point?} The complete single-noise breaking points are given in Table~\ref{tab:singlebp}, and the full set of 120 breaking points is visualised in Figures~\ref{fig:bc-heat} and~\ref{fig:digits-heat}. Of the 120 cells, 83 reached a breaking point and 37 did not. Breaking points are concentrated at levels 4 and 5 on Breast Cancer, but they are spread across levels 2--4 on Digits. The full per-combination table is written to the official results file.
-
-\textbf{Q4: Is compound noise worse than the sum of single noises?} Compound noise is worse in absolute terms: the mean breaking level falls monotonically from 5.281 for single noise to 4.729 for pairs, 4.219 for triples, and 3.750 for the four-way combination. However, it is usually less than additive. Only 124 of 440 compound cells (28.2\%) have positive synergy. The mean synergy is negative on both datasets. Super-additive interactions do occur, especially on Digits at high severity, with the largest positive synergy (0.2958) for the Random Forest four-way combination at level 5. The answer is therefore nuanced: compound noise is more damaging than individual noise, but the sum of single-noise drops is usually an overestimate of the compound drop, except in a minority of high-severity multiclass cases where it is an underestimate.
-
-\textbf{Q5: Do binary and multiclass data differ?} Yes, substantially. Digits is more fragile than Breast Cancer. The mean single-noise breaking level is 5.125 on Digits versus 5.438 on Breast Cancer; the mean compound breaking level is 3.864 versus 5.045; and the four-way breaking level is 2.750 versus 4.750. On Breast Cancer, 28 of the 36 reached breaking points occur at level 5, whereas on Digits only 10 of the 47 occur at level 5 and 19 occur at level 4. The multiclass dataset therefore fails earlier and more abruptly. Part of the difference is attributable to the task itself: a ten-class problem has more decision boundaries to corrupt, and Macro F1 penalises errors in small classes.
-
-\subsection{Interpretation}
-
-The dominance of label noise is consistent with the literature. A corrupted label directly contradicts the feature--label relationship that the model is trying to learn, and a flexible classifier can fit the corrupted examples rather than the underlying pattern \cite{zhang2021rethinking,song2023survey}. Gaussian feature noise is less direct: it perturbs the input but leaves the label unchanged, so a model can still recover the correct decision boundary if the perturbation is small relative to the class separation. Outliers and missing values are even less direct, especially because mean imputation and standardisation reduce their influence. This ordering is visible in the single-noise breaking points and in the level-5 drops.
-
-The compound results show that corruption types are not independent. The four-way combination is the earliest-breaking setting on both datasets, and the three-way combinations that include label noise are consistently earlier than the pairs. The heatmaps make the pattern visible: the top rows, which contain label noise, are lighter than the rows that contain only feature corruption.
-
-The model ranking is also interpretable. The Decision Tree partitions the feature space greedily and is highly sensitive to individual splits, so a small number of corrupted labels or shifted features can change the tree structure and cause large errors. The Random Forest averages many trees and is therefore more stable, which explains its higher BPI. Logistic Regression is a smooth linear model and is relatively stable on this data, which explains its high RS. SVM with an RBF kernel is strong on the clean Digits baseline and on single-noise Digits, but its performance under compound noise is more variable, which places it third in the Digits all-combination ranking.
-
-The synergy results refine the ``compound noise is worse than the sum'' intuition. In most cells, the single-noise drops overlap: a cell that is already corrupted by label noise has less additional room to be damaged by missing values, so the compound drop is smaller than the sum. This produces negative synergy. In a small number of high-severity multiclass cells, the corruptions reinforce each other: label noise changes the target, Gaussian noise blurs the class boundary, and outliers or missing values shift the preprocessing statistics. The result is a compound drop that exceeds the sum, which produces positive synergy. The two Decision Tree floor-effect cases are an extreme version of this phenomenon, where the sum of single drops exceeds the baseline and the synergy interpretation becomes unstable.
-
-\subsection{Comparison with Existing Methods}
-
-Table~\ref{tab:litresults} compares the present findings with the core reviewed papers. The comparison is methodological rather than numerical, because the datasets, models, and noise models differ.
-
-\begin{table}[H]
-\centering
-\caption{Comparison of the present findings with the reviewed literature.}
-\label{tab:litresults}
-\footnotesize
-\begin{tabular}{p{1.7cm}p{2.3cm}p{2.7cm}p{3.0cm}p{2.7cm}}
-\toprule
-\textbf{Study} & \textbf{Focus} & \textbf{Setting} & \textbf{Main finding} & \textbf{Relation to this work} \\
-\midrule
-Song et al.\ \cite{song2023survey} & Label-noise-robust deep learning & 62 DNN methods; image benchmarks & Five-family taxonomy; no method satisfies all six properties & Provides the taxonomy; this work extends the question to classical tabular models and compound noise \\
-Zhang et al.\ \cite{zhang2020hybrid} & Hybrid noise in multilabel learning & Feature and label noise; multilabel framework & Feature and label noise should be handled jointly & Motivates compound noise; this work uses single-label tabular data and breaking points \\
-Zeng et al.\ \cite{zeng2025feature} & Feature noise as mitigation & Gaussian feature noise; deep networks; four datasets & Feature noise tightens the PAC-Bayes bound and improves accuracy under label noise & Confirms feature--label interaction; this work measures Gaussian noise as a corruption rather than a remedy \\
-Chen \cite{chen2023compound} & Robust learning under compound noise & Outliers and noisy labels; semisupervised deep generative model & Compound noise requires dedicated robust modelling & Confirms that compound noise is a distinct problem; this work adds a systematic 15-combination sweep \\
-\textbf{This work} & Breaking points under compound noise & Four classical models; two tabular datasets; 15 combinations, 5 levels, 10 seeds & Label noise is most damaging; compound noise lowers the breaking level; Digits is more fragile; Decision Tree is least robust & Complements the deep-learning literature with a reproducible classical tabular benchmark \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-The findings agree with the literature on the central point that label noise is more harmful than input noise \cite{song2023survey}. They also support the observation that feature noise and label noise interact \cite{zeng2025feature}: Gaussian noise is the second most damaging single corruption, and the label + Gaussian combinations are among the earliest-breaking pairs. The compound-noise literature \cite{zhang2020hybrid,chen2023compound} is supported by the monotonic decrease in the breaking level as more noise types are combined.
-
-The present work adds three things that are not available in the reviewed papers. First, it provides a complete fifteen-combination sweep on classical tabular models. Second, it reports a breaking point for every model and combination, rather than a single average score. Third, it decomposes the compound effect into single-noise and interaction components and shows that the interaction is usually negative but can be positive at high severity. These additions are complementary to the deep-learning literature, not a replacement for it.
+The results show that model and dataset choice matter alongside the number and severity of corruptions. Compound noise causes earlier failures on average, particularly on Digits. The synergy analysis distinguishes this absolute degradation from an interaction that exceeds the sum of individual drops.
 
 \section{Discussion}
 
