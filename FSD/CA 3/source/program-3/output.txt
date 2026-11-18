@@ -1,0 +1,20 @@
+EXPENSE TRACKER - LIVE HTTP CRUD DEMO
+SERVER http://127.0.0.1:56864 (ephemeral port)
+01 HEALTH   200 status=ok
+EVENT create: Groceries [fdcd25a6]
+02 CREATE   201 Groceries amount=42.5 id=fdcd25a6
+EVENT create: Metro pass [30d518fb]
+03 CREATE   201 Metro pass amount=25 id=30d518fb
+04 LIST     200 count=2
+05 GET ONE  200 title=Groceries
+EVENT update: Groceries [fdcd25a6]
+06 UPDATE   200 Groceries amount=45 status=paid
+07 INVALID  400 code=VALIDATION_ERROR fields=title,amount,category,date,status
+EVENT delete: Metro pass [30d518fb]
+08 DELETE   204 Metro pass id=30d518fb
+09 LIST     200 count=1
+10 MISSING  404 code=NOT_FOUND
+11 PERSIST  OK JSON reload count=1 amount=45
+RESULT PASS: health, CRUD, validation, errors, and persistence
+SERVER STOPPED; temporary demo data removed
+SEED UNCHANGED: data/expenses.json

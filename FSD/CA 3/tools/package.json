@@ -1,0 +1,16 @@
+{
+  "name": "assignment-document-tools",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "screenshots": "node capture-screenshots.js",
+    "document": "node generate-document.js"
+  },
+  "dependencies": {
+    "docx": "^9.5.1",
+    "jszip": "^3.10.2",
+    "playwright": "^1.58.2",
+    "shiki": "^3.19.0"
+  }
+}

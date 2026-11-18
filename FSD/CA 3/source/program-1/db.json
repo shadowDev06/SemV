@@ -1,0 +1,58 @@
+{
+  "expenses": [
+    {
+      "id": "1",
+      "title": "Weekly farmers market",
+      "description": "Fresh vegetables, fruit, and pantry staples for the week.",
+      "amount": 84.6,
+      "category": "Food & Dining",
+      "date": "2026-05-16",
+      "status": "Paid"
+    },
+    {
+      "id": "2",
+      "title": "Metro card recharge",
+      "description": "Monthly top-up for the daily commute to campus.",
+      "amount": 32,
+      "category": "Transport",
+      "date": "2026-05-14",
+      "status": "Paid"
+    },
+    {
+      "id": "3",
+      "title": "Movie night with friends",
+      "description": "Two cinema tickets and snacks for Friday night.",
+      "amount": 28.5,
+      "category": "Entertainment",
+      "date": "2026-05-12",
+      "status": "Pending"
+    },
+    {
+      "id": "4",
+      "title": "Electricity bill",
+      "description": "Monthly apartment electricity and utility charges.",
+      "amount": 96.2,
+      "category": "Utilities",
+      "date": "2026-05-10",
+      "status": "Pending"
+    },
+    {
+      "id": "5",
+      "title": "JavaScript course",
+      "description": "Online course to practise modern JavaScript and APIs.",
+      "amount": 49.99,
+      "category": "Education",
+      "date": "2026-05-08",
+      "status": "Paid"
+    },
+    {
+      "id": "6",
+      "title": "Sunday brunch",
+      "description": "Weekend brunch and coffee at a neighbourhood café.",
+      "amount": 42.75,
+      "category": "Food & Dining",
+      "date": "2026-05-05",
+      "status": "Paid"
+    }
+  ]
+}
