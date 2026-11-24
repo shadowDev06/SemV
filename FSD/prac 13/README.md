@@ -1,7 +1,26 @@
 # Practical 13: Deploying a React Application using Vercel
 
-## Aim
-To build a React application with Vite and deploy it to Vercel as a static single-page application with client-side routing.
+DeployBoard is a React single-page application built with Vite. Vercel serves the built files, while React Router handles pages such as `/guide` and `/checklist`. The rewrite in `vercel.json` lets those routes open directly or reload successfully.
+
+## Run the frontend locally
+
+1. Install Node.js 22.12 or newer in the Node 22 release line and open a terminal in this practical folder.
+2. Install dependencies and start Vite:
+
+   ```powershell
+   npm ci --include=dev
+   npm run dev
+   ```
+
+3. Open the **Local** URL printed by Vite. Visit **Guide** and **Checklist** from the navigation. There is no separate API server.
+4. To preview a production build, stop Vite with Ctrl+C and run:
+
+   ```powershell
+   npm run build
+   npm run preview
+   ```
+
+5. Open the preview URL and refresh `/checklist`. For a public deployment, follow [Deploy to Vercel](#deploy-to-vercel) below.
 
 ## Objectives
 - Create a production React application with Vite.
@@ -66,38 +85,6 @@ prac 13/
         └── NotFound.jsx      # Client-side 404 route
 ```
 
-## Run locally
-
-Requirements: Node.js 20.19+ or 22.12+ and npm. `.nvmrc` pins Node 22 for Vercel; the local machine can use any supported Node version.
-
-```bash
-cd "prac 13"
-npm install
-npm run dev
-```
-
-If your shell sets `NODE_ENV=production`, the local `.npmrc` (`include=dev`) still installs Vite and the React plugin. Without it, npm would skip `devDependencies` and the build would fail.
-
-Open <http://localhost:5173>.
-
-Optionally create a local environment file:
-
-```bash
-copy .env.example .env      # Windows
-cp .env.example .env        # macOS / Linux
-```
-
-The values already have defaults in `src/config.js`, so the app runs without `.env`.
-
-### Production build locally
-
-```bash
-npm run build
-npm run preview
-```
-
-`npm run build` writes the static bundle to `dist/`. `npm run preview` serves it at <http://localhost:4173>.
-
 ## Deploy to Vercel
 
 The project is deployment-ready. Deploying requires your own Vercel account; the steps below are the complete process.
@@ -143,7 +130,7 @@ These call the globally installed `vercel` binary. If you do not install it glob
 5. Confirm the build settings:
    - Build command: `npm run build`
    - Output directory: `dist`
-   - Install command: `npm install`
+   - Install command: `npm ci --include=dev`
    - Node.js version: `22.x`
 6. Add the environment variables from the table below for **Production**, **Preview** and **Development**.
 7. Deploy. Pushes to the production branch create production deployments; other branches and pull requests create preview URLs.

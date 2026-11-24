@@ -1,0 +1,44 @@
+body {
+  margin: 0;
+  padding: 24px 16px;
+  background: #f2f2f2;
+  color: #172033;
+  font-family: Arial, sans-serif;
+}
+
+.container {
+  box-sizing: border-box;
+  width: min(100%, 600px);
+  margin: 16px auto;
+  padding: 25px;
+  border-radius: 10px;
+  background: white;
+  text-align: center;
+}
+
+.student {
+  padding: 10px;
+  margin: 10px 0;
+  background: #e8f0fe;
+}
+
+form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+input,
+button {
+  box-sizing: border-box;
+  max-width: 100%;
+  padding: 10px;
+  font: inherit;
+}
+
+button {
+  padding-inline: 20px;
+  cursor: pointer;
+}

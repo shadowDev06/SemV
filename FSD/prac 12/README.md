@@ -1,7 +1,32 @@
 # Practical 12: REST API with Express.js consumed by React
 
-## Aim
-To create a REST API using Express.js and consume it from a React application.
+This practical connects a React task board to an Express REST API. React loads tasks with `fetch` and sends requests when you add, edit, complete, or delete a task. The server stores tasks in memory, so a restart restores the sample data.
+
+## Run the API and frontend
+
+1. Install Node.js 24 with npm and open two terminals in this practical folder.
+2. In the first terminal, start the Express server:
+
+   ```powershell
+   Set-Location -LiteralPath 'api'
+   npm ci
+   npm start
+   ```
+
+   Check <http://localhost:4000/api/health> to verify that the API is running.
+
+3. In the second terminal, start the React frontend:
+
+   ```powershell
+   Set-Location -LiteralPath 'client'
+   npm ci --include=dev
+   npm run dev -- --port 5173 --strictPort
+   ```
+
+4. Open <http://localhost:5173>. Add a task, mark it complete, then delete it to check the full frontend-to-API flow.
+5. Stop both processes with Ctrl+C when finished.
+
+The default ports work without environment files. If you change them, copy the relevant `.env.example` to `.env`. Set `VITE_API_URL` on the client to the API base URL and `CLIENT_ORIGIN` on the server to the exact browser origin. Restart both processes after editing their settings.
 
 ## What this practical demonstrates
 - Designing a REST resource (`tasks`) with meaningful routes, HTTP methods and status codes.
@@ -46,37 +71,6 @@ prac 12/
             ├── TaskList.jsx
             └── TaskItem.jsx
 ```
-
-## Prerequisites
-- Node.js 18 or newer
-- Two terminals (one for the API, one for the React dev server)
-
-## Setup and run
-
-### 1. Start the REST API
-```bash
-cd "prac 12/api"
-npm install
-copy .env.example .env      # Windows
-cp .env.example .env        # macOS / Linux
-npm start
-```
-The API runs at <http://localhost:4000/api>. The `.env` file sets `PORT` and the CORS `CLIENT_ORIGIN`; the defaults work without it.
-
-### 2. Start the React client
-```bash
-cd "prac 12/client"
-npm install
-copy .env.example .env
-npm run dev
-```
-Open <http://localhost:5173>.
-
-The client's local `.npmrc` sets `include=dev` so Vite is installed even if your shell sets `NODE_ENV=production`. Without that file you would need `npm install --include=dev`.
-
-`VITE_API_URL` in `client/.env` points at the API (`http://localhost:4000/api`). If you change the API port, update both files.
-
-> **Note:** the task store lives in memory. Restarting the API restores the three sample tasks, and every restart discards changes made through the UI.
 
 ## REST API
 

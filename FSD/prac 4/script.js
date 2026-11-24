@@ -135,11 +135,9 @@ form.addEventListener("submit", event => {
 
   try {
     validator.validateAll();
+    form.reset();
     formMessage.classList.add("success");
     formMessage.textContent = "Registration submitted successfully!";
-    form.reset();
-    updateCharacterCount();
-    validator.clearErrors();
   } catch (error) {
     if (!(error instanceof ValidationError)) {
       formMessage.classList.add("error");
@@ -156,12 +154,10 @@ form.addEventListener("submit", event => {
 });
 
 form.addEventListener("reset", () => {
-  window.setTimeout(() => {
-    validator.clearErrors();
-    formMessage.className = "form-message";
-    formMessage.textContent = "";
-    updateCharacterCount();
-  }, 0);
+  validator.clearErrors();
+  formMessage.className = "form-message";
+  formMessage.textContent = "";
+  window.setTimeout(updateCharacterCount, 0);
 });
 
 updateCharacterCount();
