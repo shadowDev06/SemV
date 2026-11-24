@@ -6,7 +6,7 @@ The system comprises a React browser interface, a FastAPI service, a background 
 \resizebox{\textwidth}{!}{%
 \begin{tikzpicture}[font=\small]
 \node[draw, rounded corners, fill=blue!8, minimum width=3.8cm, minimum height=1.0cm, align=center] (ui) at (0,5.6) {React frontend\\Vite + TypeScript};
-\node[draw, rounded corners, fill=blue!8, minimum width=3.8cm, minimum height=1.0cm, align=center] (api) at (0,4.2) {FastAPI service\\read-only results API};
+\node[draw, rounded corners, fill=blue!8, minimum width=3.8cm, minimum height=1.0cm, align=center] (api) at (0,4.2) {FastAPI service\\results, jobs, datasets};
 \node[draw, rounded corners, fill=orange!10, minimum width=3.8cm, minimum height=1.0cm, align=center] (jobs) at (0,2.8) {Job manager\\file-based queue};
 \node[draw, rounded corners, fill=green!8, minimum width=3.8cm, minimum height=1.0cm, align=center] (engine) at (0,1.4) {Experiment engine\\data, noise, pipeline, analysis};
 \node[draw, rounded corners, fill=gray!10, minimum width=3.8cm, minimum height=1.0cm, align=center] (store) at (0,0.0) {CSV and JSON results\\official and custom};
@@ -26,7 +26,7 @@ The system comprises a React browser interface, a FastAPI service, a background 
 \section{System Workflow}
 For official experiments, the engine loads the datasets and frozen configuration, splits the data, applies training-only corruption, fits each pipeline, and saves metrics and provenance. A separate analysis step produces the benchmark summaries and figures. Custom experiments follow the same approach but are queued through the API.
 \section{Use Cases}
-A viewer explores results and visualisations. A researcher configures a custom run or executes the official benchmark. The worker processes queued jobs and records their status.
+A viewer explores results and visualisations. A researcher can select a built-in dataset, use the Covertype preset, or register a CSV and specify its target column before starting a custom run. Official experiments are launched through the command line. The worker processes queued jobs and records their status.
 \section{Data Flow}
 Dataset and configuration inputs pass through splitting, noise injection, imputation, standardisation and classification. Predictions on the clean test split produce Macro F1 and accuracy. Raw rows feed the baseline, breaking-point, robustness and synergy analyses, which are exposed through the API to the interface.
 \section{Data Storage}

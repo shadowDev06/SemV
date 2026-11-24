@@ -12,7 +12,20 @@ The review is organised as follows. Section~2.2 describes the main families of e
 Research on noisy data includes robust loss functions, sample selection and correction methods for label noise, as well as augmentation and robust estimation for feature corruption \cite{song2023survey,frenay2014classification,huber1964robust}. Classical classifiers remain useful for tabular data but are often evaluated under different datasets and noise assumptions \cite{hastie2009elements}.
 
 \section{Review of Research Papers}
-Song et al. survey deep learning under noisy labels and identify several families of robustness methods; no single approach satisfies all of their evaluation criteria \cite{song2023survey}. Zhang et al. study hybrid feature and label noise in multilabel learning \cite{zhang2020hybrid}. Zeng et al. investigate feature noise as a means of improving generalisation under label noise \cite{zeng2025feature}. Chen studies a semisupervised generative approach to compound noise involving outliers and noisy labels \cite{chen2023compound}. These studies motivate joint analysis of corruptions, while the present project focuses on a controlled severity sweep for classical tabular classifiers.
+\paragraph{Fr\'enay and Verleysen.}
+The survey distinguishes label errors that occur independently of an example from errors that depend on its true class or features \cite{frenay2014classification}. The project's label injector models uniform label noise by selecting a prescribed number of training rows at random and assigning each selected row a uniformly chosen alternative class.
+
+\paragraph{Song et al.}
+The survey groups deep-learning methods for noisy labels into robust architectures, regularisation, robust losses, loss adjustment, and sample selection \cite{song2023survey}. The present study uses classical classifiers with fixed settings and evaluates how their clean-test performance changes as training labels are corrupted.
+
+\paragraph{Zhang et al.}
+The proposed multilabel method uses relationships between labels and regularisation to address feature and label noise jointly \cite{zhang2020hybrid}. This motivates testing both input and label corruption in the same training split. The project evaluates single-label classifiers under individual and combined corruptions, with one target class per row.
+
+\paragraph{Zeng et al.}
+The authors show that appropriately chosen feature noise can improve generalisation for some deep networks trained with noisy labels \cite{zeng2025feature}. This motivates comparing label noise alone, Gaussian noise alone, and their combination in the official benchmark. Synergy measures departure from the sum of the individual drops. Whether Gaussian noise improved performance under label noise is assessed by comparing the combined condition directly with label noise alone.
+
+\paragraph{Chen.}
+The study addresses noisy labels and outliers together with a semisupervised generative model \cite{chen2023compound}. The present project includes outliers and label flips among four controlled corruption types and measures the resulting failure thresholds of classical tabular classifiers.
 
 \section{Research Gap}
 

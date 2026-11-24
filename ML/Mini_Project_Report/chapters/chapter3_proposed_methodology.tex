@@ -169,19 +169,20 @@ The fifteen combinations are the four single noises, the six pairs, the four tri
 
 \subsection{Datasets}
 
-Two public tabular datasets are used. Table~\ref{tab:datasets} summarises their properties.
+The official benchmark uses Breast Cancer Wisconsin and Digits. A separate large-dataset demonstration uses UCI Covertype. Table~\ref{tab:datasets} summarises the three public datasets.
 
 \begin{table}[H]
 \centering
-\caption{Datasets used in the experiment.}
+\caption{Datasets and split sizes for the official benchmark and the Covertype demonstration.}
 \label{tab:datasets}
 \footnotesize
-\begin{tabular}{p{2.6cm}p{1.4cm}p{1.4cm}p{1.3cm}p{2.0cm}p{3.4cm}}
+\begin{tabular}{lrrrll}
 \toprule
-\textbf{Dataset} & \textbf{Samples} & \textbf{Features} & \textbf{Classes} & \textbf{Train/Test} & \textbf{Character} \\
+\textbf{Dataset} & \textbf{Samples} & \textbf{Features} & \textbf{Classes} & \textbf{Train / test} & \textbf{Run} \\
 \midrule
-Breast Cancer & 569 & 30 & 2 & 398 / 171 & Binary medical classification \\
-Digits & 1,797 & 64 & 10 & 1,257 / 540 & Multiclass handwritten digits \\
+Breast Cancer & 569 & 30 & 2 & 398 / 171 & Official \\
+Digits & 1,797 & 64 & 10 & 1,257 / 540 & Official \\
+UCI Covertype & 581,012 & 54 & 7 & 406,708 / 174,304 & Demonstration \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -190,7 +191,7 @@ The Breast Cancer Wisconsin dataset was introduced in the breast cytology work o
 
 The Digits dataset contains 8$\times$8 grayscale images of handwritten digits, flattened into 64 features, with ten classes. It is also available in scikit-learn \cite{pedregosa2011scikit}. The two datasets provide a useful contrast: one is binary and low-dimensional relative to its sample size, while the other is multiclass and higher-dimensional.
 
-No new data was collected for this project. The contribution is the corruption protocol and the resulting benchmark, not a new dataset.
+UCI Covertype contains 581,012 real observations \cite{blackard1998covertype}. Each row represents a $30 \times 30$~m land cell in northern Colorado. Its 54 input features comprise ten cartographic measurements, including elevation, slope and distances to water and roads, four binary wilderness-area indicators and forty binary soil-type indicators. The target, \texttt{Cover\_Type}, identifies one of seven forest-cover classes. The source dataset has no missing entries. The demonstration used all rows and introduced label errors and missing values into the training partition only.
 
 \subsection{Preprocessing}
 
@@ -295,4 +296,4 @@ Synergy is treated as a secondary analysis, because it depends on the chosen sev
 
 \section{Summary}
 
-This chapter defined the methodology used throughout the project. The experiment uses two tabular datasets, four fixed classical classifiers, four deterministic noise injectors, all fifteen non-empty noise combinations, and five severity levels. Noise is applied only to the training data, the test set remains clean, and the pipeline is fitted on the corrupted training split. Macro F1 is the primary metric, and breaking points, BPI, RS, and synergy provide the analytical summaries. The methodology is frozen and hashed so that the official results can be reproduced and audited.
+The official benchmark uses two tabular datasets, four fixed classical classifiers, four deterministic noise injectors, all fifteen non-empty noise combinations, and five severity levels. The Covertype demonstration uses the same splitting, noise and evaluation protocol for one Decision Tree and three noise conditions. In both runs the pipeline is fitted on the training split and evaluated on the clean test split. Macro F1 is the primary metric. The methodology is frozen and hashed so that the official results can be reproduced and audited.

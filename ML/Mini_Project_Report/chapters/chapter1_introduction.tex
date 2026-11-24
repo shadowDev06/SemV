@@ -11,10 +11,11 @@ Understanding failure thresholds helps practitioners compare models and prioriti
 \item Identify the first level at which performance falls to 90\% or less of the clean baseline.
 \item Compare robustness across models and datasets, and analyse interactions among corruptions.
 \item Provide reproducible results and an interface for their exploration.
+\item Demonstrate the workflow on a public real-world dataset with more than 400,000 records.
 \end{enumerate}
 \section{Scope}
-The benchmark uses Breast Cancer and Digits data, Logistic Regression, RBF SVM, Decision Tree and Random Forest, and four corruption types: label noise, Gaussian feature noise, outliers and missing values. It tests all fifteen non-empty combinations at five levels over ten seeds. It evaluates clean test data and does not establish clinical fitness or generalise to every dataset, noise process or model.
+The official benchmark uses Breast Cancer and Digits data, Logistic Regression, RBF SVM, Decision Tree and Random Forest, and four corruption types: label noise, Gaussian feature noise, outliers and missing values. It tests all fifteen non-empty combinations at five levels over ten seeds. A separate UCI Covertype demonstration uses 581,012 observations to evaluate a Decision Tree under label noise and missing values, individually and together. Both experiments evaluate performance on clean test data.
 \section{Contributions}
-The work provides a deterministic corruption protocol, 6,080 experimental fits, breaking-point and robustness summaries, synergy analysis, and a Python engine with an API and visualisation interface. It records configuration and provenance information to support reproducibility.
+The work provides a deterministic corruption protocol, 6,080 official fits, breaking-point and robustness summaries, synergy analysis, and a Python engine with an API and visualisation interface. The custom workflow adds dataset uploads and a 16-fit Covertype demonstration. The system records configuration and provenance information to support reproducibility.
 \section{Organization of the Report}
 Chapter 2 reviews related work; Chapter 3 describes the methodology; Chapters 4 and 5 explain system design and implementation; Chapter 6 presents the findings; and Chapter 7 discusses conclusions and future work. References and an appendix follow.
